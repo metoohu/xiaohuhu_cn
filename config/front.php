@@ -29,8 +29,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'seo' => [
-        'keywords' => env('FRONT_SEO_KEYWORDS', 'Laravel 博客, 内容展示, 前端网站'),
-        'description' => env('FRONT_SEO_DESCRIPTION', '基于 Laravel 12 开发的前端内容展示网站'),
+        'keywords' => env('FRONT_SEO_KEYWORDS', '小糊涂人生馆, 人间清醒, 治愈文字, 生活感悟'),
+        'description' => env('FRONT_SEO_DESCRIPTION', '人间清醒，治愈文字。在喧嚣中寻一方宁静，用文字温暖你我。'),
     ],
 
 ];

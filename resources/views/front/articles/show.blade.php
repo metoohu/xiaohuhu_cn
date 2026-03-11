@@ -1,41 +1,41 @@
 @extends('front.layouts.master')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div class="lg:col-span-3">
-            <article class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-6 md:p-8">
-                    <h1 class="text-2xl md:text-3xl font-bold text-dark-900 mb-4">{{ $article->title }}</h1>
-                    <div class="flex flex-wrap gap-4 text-slate-500 text-sm mb-6">
+            <article class="bg-white rounded-2xl border border-haze-200 overflow-hidden shadow-sm">
+                <div class="p-6 md:p-10">
+                    <h1 class="text-2xl md:text-3xl font-serif font-semibold text-primary-800 mb-4">{{ $article->title }}</h1>
+                    <div class="flex flex-wrap gap-4 text-dark-800/60 text-sm mb-6">
                         @if($article->category)
                         <a href="{{ route('front.categories.show', $article->category) }}" class="text-primary-600 hover:text-primary-700 font-medium">{{ $article->category->name }}</a>
                         @else
-                        <span class="text-slate-500">未分类</span>
+                        <span class="text-dark-800/50">未分类</span>
                         @endif
                         <span>{{ $article->created_at->format('Y-m-d H:i') }}</span>
-                        <span>閱讀 {{ $article->click_num }}</span>
+                        <span>阅读 {{ $article->click_num }}</span>
                     </div>
                     @if($article->cover_image)
-                    <div class="rounded-xl overflow-hidden mb-8 bg-slate-100">
+                    <div class="rounded-xl overflow-hidden mb-8 bg-haze-100">
                         <img data-src="{{ \Illuminate\Support\Facades\Storage::url($article->cover_image) }}" alt="{{ $article->title }}" class="w-full lazyload" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
                     </div>
                     @endif
-                    <div class="prose prose-slate max-w-none prose-headings:text-dark-900 prose-a:text-primary-600 prose-img:rounded-lg mb-8">{!! $article->content !!}</div>
+                    <div class="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-primary-800 prose-p:text-dark-800/80 prose-a:text-primary-600 prose-img:rounded-lg mb-8">{!! $article->content !!}</div>
 
-                    <div class="flex justify-between pt-6 border-t border-slate-100 text-sm">
+                    <div class="flex justify-between pt-6 border-t border-haze-200 text-sm">
                         <div>
                             @if($prevArticle)
                             <a href="{{ route('front.articles.show', $prevArticle) }}" class="text-primary-600 hover:text-primary-700 font-medium">← {{ Str::limit($prevArticle->title, 28) }}</a>
                             @else
-                            <span class="text-slate-400">没有上一篇了</span>
+                            <span class="text-dark-800/40">没有上一篇了</span>
                             @endif
                         </div>
                         <div class="text-right">
                             @if($nextArticle)
                             <a href="{{ route('front.articles.show', $nextArticle) }}" class="text-primary-600 hover:text-primary-700 font-medium">{{ Str::limit($nextArticle->title, 28) }} →</a>
                             @else
-                            <span class="text-slate-400">没有下一篇了</span>
+                            <span class="text-dark-800/40">没有下一篇了</span>
                             @endif
                         </div>
                     </div>
@@ -43,16 +43,16 @@
             </article>
 
             {{-- 评论区 --}}
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 mt-8">
-                <h2 class="text-xl font-bold text-dark-900 mb-6">评论区 ({{ $comments->count() }})</h2>
+            <section class="bg-white rounded-2xl border border-haze-200 p-6 md:p-8 mt-8 shadow-sm">
+                <h2 class="text-xl font-serif font-semibold text-primary-800 mb-6">评论区 ({{ $comments->count() }})</h2>
 
                 <form id="comment-form" class="mb-8" x-data="{ submitting: false }">
                     @csrf
                     <input type="hidden" name="article_id" value="{{ $article->id }}">
                     <div class="mb-4">
-                        <textarea name="content" rows="4" class="w-full rounded-xl border border-slate-200 px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition" placeholder="请输入评论内容..." required></textarea>
+                        <textarea name="content" rows="4" class="w-full rounded-xl border border-haze-200 px-4 py-3 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 outline-none transition bg-haze-50/50" placeholder="写下你的想法..." required></textarea>
                     </div>
-                    <button type="submit" :disabled="submitting" class="px-6 py-2.5 bg-primary-600 text-white rounded-xl hover:bg-primary-700 font-medium disabled:opacity-50 transition-colors">
+                    <button type="submit" :disabled="submitting" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 font-medium disabled:opacity-50 transition-colors">
                         <span x-show="!submitting">提交评论</span>
                         <span x-show="submitting" x-cloak>提交中...</span>
                     </button>
@@ -62,43 +62,43 @@
                 @if($comments->isNotEmpty())
                 <div class="space-y-5">
                     @foreach($comments as $comment)
-                    <div class="pb-5 border-b border-slate-100 last:border-0">
+                    <div class="pb-5 border-b border-haze-200 last:border-0">
                         <div class="flex justify-between mb-2">
-                            <span class="font-medium text-dark-900">{{ $comment->author_name ?: ($comment->user?->name ?? '游客') }}</span>
-                            <span class="text-slate-500 text-sm">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
+                            <span class="font-medium text-primary-800">{{ $comment->author_name ?: ($comment->user?->name ?? '游客') }}</span>
+                            <span class="text-dark-800/50 text-sm">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
                         </div>
-                        <div class="text-slate-700">{{ $comment->content }}</div>
+                        <div class="text-dark-800/80">{{ $comment->content }}</div>
                     </div>
                     @endforeach
                 </div>
                 @else
-                <p class="text-slate-500">暂无评论，快来抢沙发吧！</p>
+                <p class="text-dark-800/50">暂无评论，快来抢沙发吧！</p>
                 @endif
             </section>
         </div>
 
         {{-- 側邊欄 --}}
         <div class="lg:col-span-1">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6 sticky top-24">
-                <h3 class="font-bold text-dark-900 mb-4 pb-3 border-b border-slate-100">文章分类</h3>
+            <div class="bg-white rounded-2xl border border-haze-200 p-6 mb-6 sticky top-24 shadow-sm">
+                <h3 class="font-serif font-semibold text-primary-800 mb-4 pb-3 border-b border-haze-200">文章分类</h3>
                 <ul class="space-y-2">
                     @foreach($categories as $c)
                     <li>
-                        <a href="{{ route('front.categories.show', $c) }}" class="flex justify-between py-2 text-slate-600 hover:text-primary-600 transition-colors">
+                        <a href="{{ route('front.categories.show', $c) }}" class="flex justify-between py-2 text-dark-800/70 hover:text-primary-600 transition-colors">
                             <span>{{ $c->name }}</span>
-                            <span class="text-slate-400 text-sm">({{ $c->articles_count }})</span>
+                            <span class="text-haze-500 text-sm">({{ $c->articles_count }})</span>
                         </a>
                     </li>
                     @endforeach
                 </ul>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <h3 class="font-bold text-dark-900 mb-4 pb-3 border-b border-slate-100">热门文章</h3>
+            <div class="bg-white rounded-2xl border border-haze-200 p-6 shadow-sm">
+                <h3 class="font-serif font-semibold text-primary-800 mb-4 pb-3 border-b border-haze-200">热门文章</h3>
                 <ul class="space-y-3">
                     @foreach($hotArticles as $a)
                     <li>
-                        <a href="{{ route('front.articles.show', $a) }}" class="text-slate-600 hover:text-primary-600 line-clamp-2 transition-colors">{{ $a->title }}</a>
+                        <a href="{{ route('front.articles.show', $a) }}" class="text-dark-800/70 hover:text-primary-600 line-clamp-2 transition-colors">{{ $a->title }}</a>
                     </li>
                     @endforeach
                 </ul>
