@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Support\ExtensionMimeTypeGuesser;
 use Illuminate\Filesystem\LocalFilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,7 @@ use League\Flysystem\ReadOnly\ReadOnlyFilesystemAdapter;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\Visibility;
 use League\MimeTypeDetection\ExtensionMimeTypeDetector;
+use Symfony\Component\Mime\MimeTypes;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +33,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 當 fileinfo 擴展不可用時，註冊基於副檔名的 MIME 猜測器，避免上傳封面圖等報錯
+        if (!extension_loaded('fileinfo')) {
+            $mimeTypes = new MimeTypes();
+            $mimeTypes->registerGuesser(new ExtensionMimeTypeGuesser());
+            MimeTypes::setDefault($mimeTypes);
+        }
+
         // 當 fileinfo 擴展不可用時，使用 ExtensionMimeTypeDetector 避免 Class "finfo" not found 錯誤
         if (!extension_loaded('fileinfo')) {
             Storage::extend('local', function ($app, $config) {
