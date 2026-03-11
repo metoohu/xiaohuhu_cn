@@ -20,10 +20,11 @@
                         serif: ['Noto Serif SC', 'Georgia', 'serif']
                     },
                     colors: {
-                        primary: { 50: '#f0f7fa', 100: '#e4f0f5', 200: '#cce4ed', 300: '#b0d4e3', 400: '#8fc4d8', 500: '#6eb3cc', 600: '#5a9bb5', 700: '#4a7f96', 800: '#3d6478', 900: '#2d4a5c' },
-                        haze: { 50: '#f5f9fb', 100: '#e8f2f7', 200: '#d4e8f0', 300: '#b8d4e3', 400: '#9bc0d6', 500: '#7ea9c4' },
-                        footer: { 800: '#3d6478', 900: '#2d4a5c' },
-                        dark: { 800: '#4a5f6d', 900: '#3d5260', 950: '#2d3d4a' }
+                        primary: { 50: '#f5f8f6', 100: '#e8f0ed', 200: '#d1e2db', 300: '#a8c9bc', 400: '#7aab97', 500: '#6b8e82', 600: '#5a7d72', 700: '#4a6d63', 800: '#3d5b52', 900: '#2d4a40' },
+                        haze: { 50: '#f9f7f5', 100: '#f0eee9', 200: '#e5e2dc', 300: '#d4d0c8' },
+                        morandi: { 50: '#f9f7f5', 100: '#f0eee9', 200: '#6b8e82', 300: '#5a7d72', 400: '#4a6d63' },
+                        footer: { 800: '#4a6d63', 900: '#3d5b52' },
+                        dark: { 800: '#4a5f6d', 900: '#333', 950: '#2d3d4a' }
                     }
                 }
             }
@@ -39,34 +40,68 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-haze-50 text-dark-900 min-h-screen flex flex-col font-sans antialiased">
-    {{-- 顶部导航（雾霾蓝治愈系） --}}
-    <header class="bg-white/80 backdrop-blur-sm border-b border-haze-200 sticky top-0 z-50 shadow-sm shadow-haze-100/50" x-data="{ mobileMenuOpen: false }" @click.away="mobileMenuOpen = false">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-14 md:h-16">
-                <a href="{{ route('front.home') }}" class="text-xl font-serif font-semibold text-primary-700 hover:text-primary-600 transition-colors">
-                    {{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }}
-                </a>
-                <nav class="hidden md:flex items-center gap-8">
-                    <a href="{{ route('front.home') }}" class="text-sm font-medium {{ request()->routeIs('front.home') ? 'text-primary-600' : 'text-dark-800/70 hover:text-primary-600' }} transition-colors">首页</a>
-                    <a href="{{ route('front.categories.index') }}" class="text-sm font-medium {{ request()->routeIs('front.categories.*') ? 'text-primary-600' : 'text-dark-800/70 hover:text-primary-600' }} transition-colors">文章分类</a>
-                    <a href="{{ route('front.news.index') }}" class="text-sm font-medium {{ request()->routeIs('front.news.*') ? 'text-primary-600' : 'text-dark-800/70 hover:text-primary-600' }} transition-colors">新闻资讯</a>
-                    <a href="{{ route('front.about') }}" class="text-sm font-medium {{ request()->routeIs('front.about') ? 'text-primary-600' : 'text-dark-800/70 hover:text-primary-600' }} transition-colors">关于我</a>
-                </nav>
-                <div class="md:hidden">
-                    <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-primary-700">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    </button>
+<body class="bg-[#f9f7f5] text-[#333] min-h-screen flex flex-col font-sans antialiased">
+    {{-- 头部导航：居中布局，参考小糊涂人生馆 --}}
+    <header class="border-b border-[#eee] bg-white/95 sticky top-0 z-50" x-data="{ mobileMenuOpen: false }" @click.away="mobileMenuOpen = false">
+        <div class="py-5 px-4 text-center">
+            <a href="{{ route('front.home') }}" class="block text-2xl md:text-[28px] font-semibold text-[#4a6d63] hover:text-[#3d5b52] transition-colors mb-2">
+                {{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }}
+            </a>
+            <p class="text-base text-[#777] mb-5">在喧嚣中寻一方宁静，用文字温暖你我</p>
+            <nav class="hidden md:flex justify-center gap-8 flex-wrap items-center">
+                <a href="{{ route('front.home') }}" class="text-[15px] font-medium {{ request()->routeIs('front.home') ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors">首页</a>
+                @foreach($navCategories ?? [] as $navCat)
+                @if(!empty($navCat->slug))
+                <div class="relative group">
+                    <a href="{{ route('front.categories.show', ['category' => $navCat->slug]) }}" class="text-[15px] font-medium {{ request()->routeIs('front.categories.show') && isset($currentCategory) && ($currentCategory->id === $navCat->id || $currentCategory->parent_id === $navCat->id) ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors inline-flex items-center">
+                        {{ $navCat->name }}
+                        @if($navCat->children->isNotEmpty())
+                        <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        @endif
+                    </a>
+                    @if($navCat->children->isNotEmpty())
+                    <div class="absolute left-1/2 -translate-x-1/2 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                        <div class="bg-white rounded-lg shadow-lg border border-[#eee] py-2 min-w-[140px]">
+                            @foreach($navCat->children as $child)
+                            @if(!empty($child->slug))
+                            <a href="{{ route('front.categories.show', ['category' => $child->slug]) }}" class="block px-4 py-2 text-sm text-[#666] hover:bg-[#f9f7f5] hover:text-[#4a6d63]">{{ $child->name }}</a>
+                            @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
+                @endif
+                @endforeach
+                <a href="{{ route('front.message') }}" class="text-[15px] font-medium {{ request()->routeIs('front.message') ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors">留言板</a>
+            </nav>
+            <div class="md:hidden">
+                <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-[#4a6d63]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
             </div>
         </div>
         {{-- 移动端菜单 --}}
-        <div class="md:hidden border-t border-haze-200" x-show="mobileMenuOpen" x-cloak x-transition>
-            <div class="px-4 py-4 space-y-1 bg-haze-50">
-                <a href="{{ route('front.home') }}" class="block py-2 text-sm text-dark-800/70 hover:text-primary-600">首页</a>
-                <a href="{{ route('front.categories.index') }}" class="block py-2 text-sm text-dark-800/70 hover:text-primary-600">文章分类</a>
-                <a href="{{ route('front.news.index') }}" class="block py-2 text-sm text-dark-800/70 hover:text-primary-600">新闻资讯</a>
-                <a href="{{ route('front.about') }}" class="block py-2 text-sm text-dark-800/70 hover:text-primary-600">关于我</a>
+        <div class="md:hidden border-t border-[#eee]" x-show="mobileMenuOpen" x-cloak x-transition>
+            <div class="px-4 py-4 space-y-1 bg-[#f9f7f5]">
+                <a href="{{ route('front.home') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">首页</a>
+                @foreach($navCategories ?? [] as $navCat)
+                @if(!empty($navCat->slug))
+                <div>
+                    <a href="{{ route('front.categories.show', ['category' => $navCat->slug]) }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63] font-medium">{{ $navCat->name }}</a>
+                    @if($navCat->children->isNotEmpty())
+                    <div class="pl-4 space-y-1">
+                        @foreach($navCat->children as $child)
+                        @if(!empty($child->slug))
+                        <a href="{{ route('front.categories.show', ['category' => $child->slug]) }}" class="block py-1.5 text-sm text-[#777] hover:text-[#4a6d63]">{{ $child->name }}</a>
+                        @endif
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+                @endif
+                @endforeach
+                <a href="{{ route('front.message') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">留言板</a>
             </div>
         </div>
     </header>
@@ -75,16 +110,14 @@
         @yield('content')
     </main>
 
-    {{-- 页脚（雾霾蓝治愈系） --}}
-    <footer class="bg-primary-800 text-white mt-auto">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-            <h3 class="text-xl font-serif font-semibold mb-3 text-haze-100">{{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }}</h3>
-            <p class="text-haze-200 text-sm max-w-xl mx-auto leading-relaxed">人间清醒，治愈文字。在喧嚣中寻一方宁静，用文字温暖你我。</p>
-            @if($icp = \App\Models\Setting::get('site_icp'))
-            <p class="text-haze-300/80 text-xs mt-4">备案号：{{ $icp }}</p>
-            @endif
-            <p class="text-haze-300/70 text-xs mt-2">© {{ date('Y') }} {{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }}</p>
+    {{-- 底部信息 --}}
+    <footer class="bg-[#f0eee9] py-10 mt-16 text-center">
+        <div class="text-sm text-[#777]">
+            {{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }} © {{ date('Y') }} | 在喧嚣中寻一方宁静，用文字温暖你我
         </div>
+        @if($icp = \App\Models\Setting::get('site_icp'))
+        <p class="text-xs text-[#999] mt-2">备案号：{{ $icp }}</p>
+        @endif
     </footer>
 
     @stack('scripts')

@@ -13,7 +13,7 @@
         <dt class="text-slate-500">描述</dt><dd>{{ $category->description ?? '-' }}</dd>
     </dl>
     <div class="mt-4">
-        <a href="{{ route('admin.categories.edit', $category) }}" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 text-sm">编辑</a>
+        <a href="{{ route('admin.categories.edit', ['category' => $category->id]) }}" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 text-sm">编辑</a>
         <a href="{{ route('admin.categories.index') }}" class="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 text-sm ml-2">返回</a>
     </div>
 </div>

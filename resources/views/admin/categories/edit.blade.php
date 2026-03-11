@@ -5,13 +5,18 @@
 @section('content')
 <div class="bg-white rounded-lg shadow p-4 max-w-md">
     <h2 class="text-xl font-bold mb-4">编辑分类</h2>
-    <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('admin.categories.update', ['category' => $category->id]) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium mb-1">名称</label>
                 <input type="text" name="name" value="{{ old('name', $category->name) }}" required class="w-full rounded border-slate-300">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">URL 标识 (slug)</label>
+                <input type="text" name="slug" value="{{ old('slug', $category->slug) }}" class="w-full rounded border-slate-300">
+                <p class="text-xs text-slate-500 mt-1">仅小写字母、数字、连字符</p>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">父级分类</label>

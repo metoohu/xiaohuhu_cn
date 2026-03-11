@@ -13,6 +13,11 @@
                 <input type="text" name="name" value="{{ old('name') }}" required class="w-full rounded border-slate-300">
             </div>
             <div>
+                <label class="block text-sm font-medium mb-1">URL 标识 (slug)</label>
+                <input type="text" name="slug" value="{{ old('slug') }}" placeholder="留空则自动生成" class="w-full rounded border-slate-300">
+                <p class="text-xs text-slate-500 mt-1">仅小写字母、数字、连字符，如：awake、insight</p>
+            </div>
+            <div>
                 <label class="block text-sm font-medium mb-1">父级分类</label>
                 <select name="parent_id" class="w-full rounded border-slate-300">
                     <option value="">无</option>

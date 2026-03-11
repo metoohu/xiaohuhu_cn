@@ -7,6 +7,7 @@ use App\Http\Controllers\Front\ArticleController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\CommentController;
 use App\Http\Controllers\Front\HomeController;
+use App\Http\Controllers\Front\MessageController;
 use App\Http\Controllers\Front\NewsController;
 use App\Http\Controllers\Front\SearchController;
 use Illuminate\Support\Facades\Route;
@@ -20,15 +21,18 @@ Route::get('/', [HomeController::class, 'index'])->name('front.home');
 Route::get('articles', [ArticleController::class, 'index'])->name('front.articles.index');
 Route::get('articles/{article}', [ArticleController::class, 'show'])->name('front.articles.show');
 
-// 分类
+// 分类（前台使用 slug 解析）
 Route::get('categories', [CategoryController::class, 'index'])->name('front.categories.index');
-Route::get('categories/{category}', [CategoryController::class, 'show'])->name('front.categories.show');
+Route::get('categories/{category:slug}', [CategoryController::class, 'show'])->name('front.categories.show');
 
 // 搜索
 Route::get('search', [SearchController::class, 'index'])->name('front.search');
 
 // 关于我们
 Route::get('about', [AboutController::class, 'index'])->name('front.about');
+
+// 留言板
+Route::get('message', [MessageController::class, 'index'])->name('front.message');
 
 // 新闻资讯
 Route::get('news', [NewsController::class, 'index'])->name('front.news.index');

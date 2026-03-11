@@ -46,6 +46,7 @@
                 <th class="text-left py-2">标题</th>
                 <th class="text-left py-2">分类</th>
                 <th class="text-left py-2">状态</th>
+                <th class="text-left py-2">阅读量</th>
                 <th class="text-left py-2">作者</th>
                 <th class="text-left py-2">时间</th>
                 <th class="text-left py-2">操作</th>
@@ -64,6 +65,7 @@
                     @else <span class="text-amber-600">待审核</span>
                     @endif
                 </td>
+                <td class="py-2">{{ $a->click_num ?? 0 }}</td>
                 <td class="py-2">{{ $a->adminUser?->name ?? '-' }}</td>
                 <td class="py-2">{{ $a->created_at->format('Y-m-d H:i') }}</td>
                 <td class="py-2">

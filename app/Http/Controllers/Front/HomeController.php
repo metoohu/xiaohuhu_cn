@@ -18,6 +18,11 @@ class HomeController extends Controller
             $banners = Setting::get('banner_images');
             $banners = $banners ? json_decode($banners, true) : [];
 
+            $awake = Category::where('slug', 'awake')->with('children')->first();
+            $healing = Category::where('slug', 'healing')->with('children')->first();
+            $awakeIds = $awake ? $awake->children->pluck('id')->push($awake->id)->toArray() : [];
+            $healingIds = $healing ? $healing->children->pluck('id')->push($healing->id)->toArray() : [];
+
             return [
                 'banners' => $banners,
                 'recommend_articles' => Article::where('status', 'published')
@@ -31,6 +36,12 @@ class HomeController extends Controller
                     ->orderByDesc('created_at')
                     ->take(config('front.home_article_count', 10))
                     ->get(),
+                'awake_articles' => !empty($awakeIds)
+                    ? Article::where('status', 'published')->whereIn('category_id', $awakeIds)->with('category')->orderByDesc('created_at')->take(3)->get()
+                    : collect(),
+                'healing_articles' => !empty($healingIds)
+                    ? Article::where('status', 'published')->whereIn('category_id', $healingIds)->with('category')->orderByDesc('created_at')->take(3)->get()
+                    : collect(),
             ];
         });
 

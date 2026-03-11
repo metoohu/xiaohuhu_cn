@@ -38,9 +38,15 @@ Route::middleware(['admin.auth'])->group(function () {
     // 角色管理
     Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
 
-    // 分类管理
+    // 分类管理（使用 id 綁定，避免 slug 為空時報錯）
     Route::post('categories/batch', [\App\Http\Controllers\Admin\CategoryController::class, 'batchAction'])->name('categories.batch');
-    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+    Route::get('categories', [\App\Http\Controllers\Admin\CategoryController::class, 'index'])->name('categories.index');
+    Route::get('categories/create', [\App\Http\Controllers\Admin\CategoryController::class, 'create'])->name('categories.create');
+    Route::post('categories', [\App\Http\Controllers\Admin\CategoryController::class, 'store'])->name('categories.store');
+    Route::get('categories/{category:id}', [\App\Http\Controllers\Admin\CategoryController::class, 'show'])->name('categories.show');
+    Route::get('categories/{category:id}/edit', [\App\Http\Controllers\Admin\CategoryController::class, 'edit'])->name('categories.edit');
+    Route::put('categories/{category:id}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('categories/{category:id}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // 文章管理
     Route::post('articles/batch', [\App\Http\Controllers\Admin\ArticleController::class, 'batchAction'])->name('articles.batch');

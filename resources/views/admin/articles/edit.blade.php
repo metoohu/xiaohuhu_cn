@@ -30,6 +30,10 @@
                 <input type="file" name="cover_image" accept="image/*" class="w-full rounded border-slate-300">
             </div>
             <div>
+                <label class="block text-sm font-medium mb-1">阅读量</label>
+                <input type="number" name="click_num" value="{{ old('click_num', $article->click_num ?? 0) }}" min="0" class="w-full rounded border-slate-300">
+            </div>
+            <div>
                 <label class="block text-sm font-medium mb-1">状态</label>
                 <select name="status" class="w-full rounded border-slate-300">
                     <option value="draft" {{ old('status', $article->status) === 'draft' ? 'selected' : '' }}>草稿</option>

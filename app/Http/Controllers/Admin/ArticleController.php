@@ -51,9 +51,11 @@ class ArticleController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'status' => 'required|in:draft,review',
             'cover_image' => 'nullable|image|max:2048',
+            'click_num' => 'nullable|integer|min:0',
         ]);
 
         $data = $request->only('title', 'content', 'category_id', 'status');
+        $data['click_num'] = (int) ($request->input('click_num', 0));
         $data['admin_user_id'] = Auth::guard('admin')->id();
 
         if ($request->hasFile('cover_image')) {
@@ -89,9 +91,11 @@ class ArticleController extends Controller
             'category_id' => 'nullable|exists:categories,id',
             'status' => 'required|in:draft,review,published',
             'cover_image' => 'nullable|image|max:2048',
+            'click_num' => 'nullable|integer|min:0',
         ]);
 
         $data = $request->only('title', 'content', 'category_id', 'status');
+        $data['click_num'] = (int) ($request->input('click_num', 0));
 
         if ($request->hasFile('cover_image')) {
             if ($article->cover_image) {

@@ -29,6 +29,7 @@
                 <th class="text-left py-2 w-10"><input type="checkbox" id="categorySelectAll"></th>
                 <th class="text-left py-2">ID</th>
                 <th class="text-left py-2">名称</th>
+                <th class="text-left py-2">slug</th>
                 <th class="text-left py-2">父级</th>
                 <th class="text-left py-2">排序</th>
                 <th class="text-left py-2">文章数</th>
@@ -41,12 +42,13 @@
                 <td class="py-2"><input type="checkbox" form="categoryBatchForm" name="ids[]" value="{{ $c->id }}" class="category-checkbox"></td>
                 <td class="py-2">{{ $c->id }}</td>
                 <td class="py-2">{{ $c->name }}</td>
+                <td class="py-2 text-slate-500">{{ $c->slug ?? '-' }}</td>
                 <td class="py-2">{{ $c->parent?->name ?? '-' }}</td>
                 <td class="py-2">{{ $c->sort }}</td>
                 <td class="py-2">{{ $c->articles_count ?? 0 }}</td>
                 <td class="py-2">
-                    <a href="{{ route('admin.categories.edit', $c) }}" class="text-blue-600 hover:underline">编辑</a>
-                    <form action="{{ route('admin.categories.destroy', $c) }}" method="POST" class="inline">
+                    <a href="{{ route('admin.categories.edit', ['category' => $c->id]) }}" class="text-blue-600 hover:underline">编辑</a>
+                    <form action="{{ route('admin.categories.destroy', ['category' => $c->id]) }}" method="POST" class="inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-red-600 hover:underline">删除</button>

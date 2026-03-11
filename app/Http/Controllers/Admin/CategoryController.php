@@ -7,6 +7,8 @@ use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
@@ -35,6 +37,13 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
+            'slug' => [
+                'nullable',
+                'string',
+                'max:100',
+                'regex:/^[a-z0-9\-]+$/',
+                'unique:categories,slug',
+            ],
             'parent_id' => 'nullable|exists:categories,id',
             'sort' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:255',
@@ -43,6 +52,17 @@ class CategoryController extends Controller
 
         $data = $request->only('name', 'parent_id', 'sort', 'description');
         $data['sort'] = $data['sort'] ?? 0;
+        if ($request->filled('slug')) {
+            $data['slug'] = $request->slug;
+        } else {
+            $base = Str::slug($data['name']);
+            $slug = $base;
+            $i = 0;
+            while (Category::where('slug', $slug)->exists()) {
+                $slug = $base . '-' . (++$i);
+            }
+            $data['slug'] = $slug;
+        }
 
         if ($request->hasFile('icon')) {
             $data['icon'] = $request->file('icon')->store(config('admin.upload_path', 'uploads'), 'public');
@@ -71,6 +91,13 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:100',
+            'slug' => [
+                'nullable',
+                'string',
+                'max:100',
+                'regex:/^[a-z0-9\-]+$/',
+                Rule::unique('categories', 'slug')->ignore($category->id),
+            ],
             'parent_id' => 'nullable|exists:categories,id',
             'sort' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:255',
@@ -78,6 +105,11 @@ class CategoryController extends Controller
         ]);
 
         $data = $request->only('name', 'parent_id', 'sort', 'description');
+        if ($request->filled('slug')) {
+            $data['slug'] = $request->slug;
+        } else {
+            $data['slug'] = Str::slug($data['name']);
+        }
         if (isset($data['parent_id']) && $data['parent_id'] == $category->id) {
             $data['parent_id'] = null;
         }

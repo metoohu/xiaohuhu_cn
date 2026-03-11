@@ -23,7 +23,8 @@
                     @endif
                     <div class="flex-1 min-w-0">
                         <h2 class="font-serif font-semibold text-lg text-primary-800 group-hover:text-primary-600 transition-colors line-clamp-2">{!! $keyword ? preg_replace('/(' . preg_quote($keyword, '/') . ')/iu', '<mark class="bg-primary-200 text-primary-800 rounded px-0.5">$1</mark>', e($a->title)) : e($a->title) !!}</h2>
-                        <p class="text-dark-800/60 text-sm mt-1">{{ $a->category?->name ?? '未分类' }} · {{ $a->created_at->format('Y-m-d') }}</p>
+                        <p class="text-dark-800/60 text-sm mt-1">{{ $a->category?->name ?? '未分类' }} · {{ $a->created_at->format('Y-m-d') }} · 阅读 {{ $a->click_num ?? 0 }}</p>
+                        <p class="text-dark-800/70 text-sm mt-2 line-clamp-2">{{ Str::limit(strip_tags($a->content ?? ''), 100) ?: '点击阅读全文' }}</p>
                     </div>
                     <svg class="w-5 h-5 text-haze-400 group-hover:text-primary-500 flex-shrink-0 self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </a>

@@ -8,13 +8,13 @@
                 <div class="p-6 md:p-10">
                     <h1 class="text-2xl md:text-3xl font-serif font-semibold text-primary-800 mb-4">{{ $article->title }}</h1>
                     <div class="flex flex-wrap gap-4 text-dark-800/60 text-sm mb-6">
-                        @if($article->category)
+                        @if($article->category && $article->category->slug)
                         <a href="{{ route('front.categories.show', $article->category) }}" class="text-primary-600 hover:text-primary-700 font-medium">{{ $article->category->name }}</a>
                         @else
                         <span class="text-dark-800/50">未分类</span>
                         @endif
                         <span>{{ $article->created_at->format('Y-m-d H:i') }}</span>
-                        <span>阅读 {{ $article->click_num }}</span>
+                        <span>阅读 {{ $article->click_num ?? 0 }}</span>
                     </div>
                     @if($article->cover_image)
                     <div class="rounded-xl overflow-hidden mb-8 bg-haze-100">
