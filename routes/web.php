@@ -7,6 +7,7 @@ use App\Http\Controllers\Front\ArticleController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\CommentController;
 use App\Http\Controllers\Front\HomeController;
+use App\Http\Controllers\Front\NewsController;
 use App\Http\Controllers\Front\SearchController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,10 @@ Route::get('search', [SearchController::class, 'index'])->name('front.search');
 
 // 关于我们
 Route::get('about', [AboutController::class, 'index'])->name('front.about');
+
+// 新闻资讯
+Route::get('news', [NewsController::class, 'index'])->name('front.news.index');
+Route::get('news/{news}', [NewsController::class, 'show'])->name('front.news.show');
 
 // 评论提交（异步）
 Route::post('comments', [CommentController::class, 'store'])->name('front.comments.store');

@@ -44,6 +44,7 @@
                 <nav class="hidden md:flex items-center gap-8">
                     <a href="{{ route('front.home') }}" class="text-sm font-medium {{ request()->routeIs('front.home') ? 'text-primary-600' : 'text-slate-600 hover:text-primary-600' }} transition-colors">首页</a>
                     <a href="{{ route('front.categories.index') }}" class="text-sm font-medium {{ request()->routeIs('front.categories.*') ? 'text-primary-600' : 'text-slate-600 hover:text-primary-600' }} transition-colors">文章分类</a>
+                    <a href="{{ route('front.news.index') }}" class="text-sm font-medium {{ request()->routeIs('front.news.*') ? 'text-primary-600' : 'text-slate-600 hover:text-primary-600' }} transition-colors">新闻资讯</a>
                     <a href="{{ route('front.about') }}" class="text-sm font-medium {{ request()->routeIs('front.about') ? 'text-primary-600' : 'text-slate-600 hover:text-primary-600' }} transition-colors">关于我</a>
                 </nav>
                 <div class="md:hidden">
@@ -58,6 +59,7 @@
             <div class="px-4 py-4 space-y-1 bg-slate-50">
                 <a href="{{ route('front.home') }}" class="block py-2 text-sm text-slate-600 hover:text-primary-600">首页</a>
                 <a href="{{ route('front.categories.index') }}" class="block py-2 text-sm text-slate-600 hover:text-primary-600">文章分类</a>
+                <a href="{{ route('front.news.index') }}" class="block py-2 text-sm text-slate-600 hover:text-primary-600">新闻资讯</a>
                 <a href="{{ route('front.about') }}" class="block py-2 text-sm text-slate-600 hover:text-primary-600">关于我</a>
             </div>
         </div>
