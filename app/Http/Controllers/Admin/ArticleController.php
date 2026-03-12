@@ -52,6 +52,9 @@ class ArticleController extends Controller
             'status' => 'required|in:draft,review',
             'cover_image' => 'nullable|image|max:2048',
             'click_num' => 'nullable|integer|min:0',
+        ], [
+            'cover_image.image' => '封面图必须是图片格式（jpg、png、gif、webp）',
+            'cover_image.max' => '封面图大小不能超过 2MB',
         ]);
 
         $data = $request->only('title', 'content', 'category_id', 'status');
@@ -92,6 +95,9 @@ class ArticleController extends Controller
             'status' => 'required|in:draft,review,published',
             'cover_image' => 'nullable|image|max:2048',
             'click_num' => 'nullable|integer|min:0',
+        ], [
+            'cover_image.image' => '封面图必须是图片格式（jpg、png、gif、webp）',
+            'cover_image.max' => '封面图大小不能超过 2MB',
         ]);
 
         $data = $request->only('title', 'content', 'category_id', 'status');
@@ -207,12 +213,31 @@ class ArticleController extends Controller
 
     public function uploadImage(Request $request)
     {
-        $request->validate(['file' => 'required|image|max:2048']);
+        try {
+            $request->validate([
+                'file' => 'required|image|max:2048',
+            ], [
+                'file.required' => '请选择要上传的图片',
+                'file.image' => '请上传图片文件（支持 jpg、png、gif、webp 等格式）',
+                'file.max' => '图片大小不能超过 2MB',
+            ]);
 
-        $path = $request->file('file')->store(config('admin.upload_path', 'uploads'), 'public');
+            $path = $request->file('file')->store(config('admin.upload_path', 'uploads'), 'public');
 
-        return response()->json([
-            'location' => url(Storage::url($path)),
-        ]);
+            return response()->json([
+                'location' => url(Storage::url($path)),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => '图片验证失败',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('文章图片上传失败: ' . $e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'message' => '上传失败：' . (config('app.debug') ? $e->getMessage() : '服务器处理异常，请重试'),
+            ], 500);
+        }
     }
 }

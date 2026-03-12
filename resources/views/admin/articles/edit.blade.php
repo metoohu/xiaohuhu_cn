@@ -27,7 +27,11 @@
                 @if ($article->cover_image)
                     <p class="text-sm text-slate-500 mb-1">当前：<a href="{{ \Illuminate\Support\Facades\Storage::url($article->cover_image) }}" target="_blank" class="text-blue-600">查看</a></p>
                 @endif
-                <input type="file" name="cover_image" accept="image/*" class="w-full rounded border-slate-300">
+                <input type="file" name="cover_image" accept="image/jpeg,image/png,image/gif,image/webp" class="w-full rounded border-slate-300">
+                <p class="text-xs text-slate-500 mt-1">支持 jpg、png、gif、webp，最大 2MB</p>
+                @error('cover_image')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">阅读量</label>

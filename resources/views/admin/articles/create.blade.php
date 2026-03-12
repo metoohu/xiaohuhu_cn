@@ -23,7 +23,11 @@
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">封面图</label>
-                <input type="file" name="cover_image" accept="image/*" class="w-full rounded border-slate-300">
+                <input type="file" name="cover_image" accept="image/jpeg,image/png,image/gif,image/webp" class="w-full rounded border-slate-300">
+                <p class="text-xs text-slate-500 mt-1">支持 jpg、png、gif、webp，最大 2MB</p>
+                @error('cover_image')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">阅读量</label>
