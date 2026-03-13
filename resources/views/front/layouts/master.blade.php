@@ -41,14 +41,24 @@
     @stack('styles')
 </head>
 <body class="bg-[#f9f7f5] text-[#333] min-h-screen flex flex-col font-sans antialiased">
-    {{-- 头部导航：居中布局，参考小糊涂人生馆 --}}
+    {{-- 头部导航：Logo 左上角，导航居中 --}}
+    @php
+        $siteLogo = \App\Models\Setting::get('site_logo');
+        $siteName = \App\Models\Setting::adminName() ?: '小糊涂人生馆';
+    @endphp
     <header class="border-b border-[#eee] bg-white/95 sticky top-0 z-50" x-data="{ mobileMenuOpen: false }" @click.away="mobileMenuOpen = false">
-        <div class="py-5 px-4 text-center">
-            <a href="{{ route('front.home') }}" class="block text-2xl md:text-[28px] font-semibold text-[#4a6d63] hover:text-[#3d5b52] transition-colors mb-2">
-                {{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }}
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-row items-center justify-between gap-4">
+            {{-- Logo 左上角 --}}
+            <a href="{{ route('front.home') }}" class="flex items-center gap-2 md:gap-3 shrink-0 min-w-0">
+                @if($siteLogo)
+                    <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-9 md:h-12 w-auto object-contain shrink-0">
+                @endif
+                <div class="min-w-0">
+                    <span class="text-lg md:text-2xl font-semibold text-[#4a6d63] hover:text-[#3d5b52] transition-colors block truncate">{{ $siteName }}</span>
+                    <p class="text-xs md:text-sm text-[#777] hidden sm:block">在喧嚣中寻一方宁静，用文字温暖你我</p>
+                </div>
             </a>
-            <p class="text-base text-[#777] mb-5">在喧嚣中寻一方宁静，用文字温暖你我</p>
-            <nav class="hidden md:flex justify-center gap-8 flex-wrap items-center">
+            <nav class="hidden md:flex justify-center md:justify-end gap-6 lg:gap-8 flex-wrap items-center flex-1">
                 <a href="{{ route('front.home') }}" class="text-[15px] font-medium {{ request()->routeIs('front.home') ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors">首页</a>
                 @foreach($navCategories ?? [] as $navCat)
                 @if(!empty($navCat->slug))
@@ -75,7 +85,7 @@
                 @endforeach
                 <a href="{{ route('front.message') }}" class="text-[15px] font-medium {{ request()->routeIs('front.message') ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors">留言板</a>
             </nav>
-            <div class="md:hidden">
+            <div class="md:hidden shrink-0 ml-auto">
                 <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-[#4a6d63]">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
