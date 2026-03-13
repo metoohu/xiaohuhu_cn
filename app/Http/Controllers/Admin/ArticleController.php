@@ -9,11 +9,33 @@ use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
+    /**
+     * 上傳封面圖並驗證寫入成功（解決生產環境 store 回傳路徑但檔案未實際寫入的問題）
+     */
+    private static function storeCoverImage(\Illuminate\Http\UploadedFile $file): string
+    {
+        $uploadPath = config('admin.upload_path', 'uploads');
+        Storage::disk('public')->makeDirectory($uploadPath);
+
+        $path = $file->store($uploadPath, 'public');
+
+        if ($path === false || $path === '') {
+            throw new \RuntimeException('封面圖上傳失敗，請檢查 storage 目錄權限');
+        }
+
+        if (! Storage::disk('public')->exists($path)) {
+            throw new \RuntimeException('封面圖寫入驗證失敗，請確認 storage/app/public 目錄存在且可寫入');
+        }
+
+        return $path;
+    }
+
     public function index(Request $request): View
     {
         $keyword = $request->input('keyword');
@@ -61,8 +83,14 @@ class ArticleController extends Controller
         $data['click_num'] = (int) ($request->input('click_num', 0));
         $data['admin_user_id'] = Auth::guard('admin')->id();
 
-        if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store(config('admin.upload_path', 'uploads'), 'public');
+        try {
+            if ($request->hasFile('cover_image')) {
+                $data['cover_image'] = self::storeCoverImage($request->file('cover_image'));
+            }
+        } catch (\Throwable $e) {
+            Log::error('封面圖上傳失敗: ' . $e->getMessage(), ['exception' => $e]);
+
+            return redirect()->back()->withInput()->withErrors(['cover_image' => $e->getMessage()]);
         }
 
         $article = Article::create($data);
@@ -103,11 +131,17 @@ class ArticleController extends Controller
         $data = $request->only('title', 'content', 'category_id', 'status');
         $data['click_num'] = (int) ($request->input('click_num', 0));
 
-        if ($request->hasFile('cover_image')) {
-            if ($article->cover_image) {
-                Storage::disk('public')->delete($article->cover_image);
+        try {
+            if ($request->hasFile('cover_image')) {
+                if ($article->cover_image) {
+                    Storage::disk('public')->delete($article->cover_image);
+                }
+                $data['cover_image'] = self::storeCoverImage($request->file('cover_image'));
             }
-            $data['cover_image'] = $request->file('cover_image')->store(config('admin.upload_path', 'uploads'), 'public');
+        } catch (\Throwable $e) {
+            Log::error('封面圖上傳失敗: ' . $e->getMessage(), ['exception' => $e]);
+
+            return redirect()->back()->withInput()->withErrors(['cover_image' => $e->getMessage()]);
         }
 
         $article->update($data);
@@ -222,7 +256,7 @@ class ArticleController extends Controller
                 'file.max' => '图片大小不能超过 2MB',
             ]);
 
-            $path = $request->file('file')->store(config('admin.upload_path', 'uploads'), 'public');
+            $path = self::storeCoverImage($request->file('file'));
 
             return response()->json([
                 'location' => url(Storage::url($path)),
@@ -233,7 +267,7 @@ class ArticleController extends Controller
                 'errors' => $e->errors(),
             ], 422);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('文章图片上传失败: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('文章图片上传失败: ' . $e->getMessage(), ['exception' => $e]);
 
             return response()->json([
                 'message' => '上传失败：' . (config('app.debug') ? $e->getMessage() : '服务器处理异常，请重试'),
