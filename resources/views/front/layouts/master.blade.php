@@ -46,8 +46,23 @@
         $siteLogo = \App\Models\Setting::get('site_logo');
         $siteName = \App\Models\Setting::adminName() ?: '小糊涂人生馆';
     @endphp
-    <header class="border-b border-[#eee] bg-white/95 sticky top-0 z-50" x-data="{ mobileMenuOpen: false }" @click.away="mobileMenuOpen = false">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-row items-center justify-between gap-4">
+    <header class="relative border-b border-[#eee] bg-white/95 sticky top-0 z-50" x-data="{ mobileMenuOpen: false }" @click.away="mobileMenuOpen = false">
+        {{-- 登录/注册 固定右上角，不影响主菜单 --}}
+        <div class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 items-center gap-3">
+            @auth
+            <span class="text-[14px] text-[#777]">{{ Auth::user()->name }}</span>
+            <form action="{{ route('front.logout') }}" method="POST" class="inline">
+                @csrf
+                <button type="submit" class="text-[14px] text-[#6b8e82] hover:text-[#4a6d63] transition-colors px-2 py-1 rounded hover:bg-[#f5f8f6]">退出</button>
+            </form>
+            @else
+            <a href="{{ route('front.login') }}" class="text-[14px] font-medium text-[#6b8e82] hover:text-[#4a6d63] transition-colors px-3 py-1.5 rounded hover:bg-[#f5f8f6]">登录</a>
+            @if(\App\Models\Setting::get('register_enabled', '1') == '1')
+            <a href="{{ route('front.register') }}" class="text-[14px] font-medium text-[#4a6d63] bg-[#e8f0ed] hover:bg-[#d1e2db] text-[#4a6d63] transition-colors px-3 py-1.5 rounded">注册</a>
+            @endif
+            @endauth
+        </div>
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-row items-center justify-between gap-4">
             {{-- Logo 左上角 --}}
             <a href="{{ route('front.home') }}" class="flex items-center gap-2 md:gap-3 shrink-0 min-w-0">
                 @if($siteLogo)
@@ -58,7 +73,8 @@
                     <p class="text-xs md:text-sm text-[#777] hidden sm:block">在喧嚣中寻一方宁静，用文字温暖你我</p>
                 </div>
             </a>
-            <nav class="hidden md:flex justify-center md:justify-end gap-6 lg:gap-8 flex-wrap items-center flex-1">
+            {{-- 主菜单 居中 --}}
+            <nav class="hidden md:flex justify-center gap-6 lg:gap-8 flex-wrap items-center flex-1 min-w-0">
                 <a href="{{ route('front.home') }}" class="text-[15px] font-medium {{ request()->routeIs('front.home') ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors">首页</a>
                 @foreach($navCategories ?? [] as $navCat)
                 @if(!empty($navCat->slug))
@@ -83,7 +99,6 @@
                 </div>
                 @endif
                 @endforeach
-                <a href="{{ route('front.message') }}" class="text-[15px] font-medium {{ request()->routeIs('front.message') ? 'text-[#4a6d63]' : 'text-[#6b8e82] hover:text-[#4a6d63]' }} transition-colors">留言板</a>
             </nav>
             <div class="md:hidden shrink-0 ml-auto">
                 <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-[#4a6d63]">
@@ -111,10 +126,29 @@
                 </div>
                 @endif
                 @endforeach
-                <a href="{{ route('front.message') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">留言板</a>
+                @auth
+                <div class="pt-2 mt-2 border-t border-[#eee] flex items-center justify-between">
+                    <span class="text-[#777]">{{ Auth::user()->name }}</span>
+                    <form action="{{ route('front.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="text-[#6b8e82] hover:text-[#4a6d63]">退出</button>
+                    </form>
+                </div>
+                @else
+                <a href="{{ route('front.login') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">登录</a>
+                @if(\App\Models\Setting::get('register_enabled', '1') == '1')
+                <a href="{{ route('front.register') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">注册</a>
+                @endif
+                @endauth
             </div>
         </div>
     </header>
+
+    @if(session('success'))
+    <div class="max-w-5xl mx-auto px-4 py-2">
+        <div class="p-3 bg-green-50 text-green-700 rounded-lg text-sm text-center">{{ session('success') }}</div>
+    </div>
+    @endif
 
     <main class="flex-1">
         @yield('content')

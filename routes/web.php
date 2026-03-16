@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\CrawlerController;
 use App\Http\Controllers\Front\AboutController;
+use App\Http\Controllers\Front\AuthController;
 use App\Http\Controllers\Front\CompanyInfoController;
 use App\Http\Controllers\Front\ArticleController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\CommentController;
 use App\Http\Controllers\Front\HomeController;
-use App\Http\Controllers\Front\MessageController;
 use App\Http\Controllers\Front\NewsController;
 use App\Http\Controllers\Front\SearchController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +16,14 @@ use Illuminate\Support\Facades\Route;
 
 // 首页
 Route::get('/', [HomeController::class, 'index'])->name('front.home');
+
+// 会员注册、登录、登出
+Route::get('register', [AuthController::class, 'showRegisterForm'])->name('front.register');
+Route::post('register', [AuthController::class, 'register']);
+Route::get('login', [AuthController::class, 'showLoginForm'])->name('front.login');
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->name('front.logout');
+Route::get('auth/captcha', [AuthController::class, 'captcha'])->name('front.captcha');
 
 // 文章
 Route::get('articles', [ArticleController::class, 'index'])->name('front.articles.index');
@@ -31,8 +39,8 @@ Route::get('search', [SearchController::class, 'index'])->name('front.search');
 // 关于我们
 Route::get('about', [AboutController::class, 'index'])->name('front.about');
 
-// 留言板
-Route::get('message', [MessageController::class, 'index'])->name('front.message');
+// 留言板已移除，重定向至首页
+Route::get('message', fn () => redirect('/'))->name('front.message');
 
 // 新闻资讯
 Route::get('news', [NewsController::class, 'index'])->name('front.news.index');

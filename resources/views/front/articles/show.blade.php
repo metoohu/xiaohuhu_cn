@@ -46,9 +46,11 @@
             <section class="bg-white rounded-2xl border border-haze-200 p-6 md:p-8 mt-8 shadow-sm">
                 <h2 class="text-xl font-serif font-semibold text-primary-800 mb-6">评论区 ({{ $comments->count() }})</h2>
 
+                @auth
                 <form id="comment-form" class="mb-8" x-data="{ submitting: false }">
                     @csrf
                     <input type="hidden" name="article_id" value="{{ $article->id }}">
+                    <input type="hidden" name="return_url" value="{{ url()->current() }}">
                     <div class="mb-4">
                         <textarea name="content" rows="4" class="w-full rounded-xl border border-haze-200 px-4 py-3 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 outline-none transition bg-haze-50/50" placeholder="写下你的想法..." required></textarea>
                     </div>
@@ -58,6 +60,15 @@
                     </button>
                     <p id="comment-message" class="mt-2 text-sm hidden"></p>
                 </form>
+                @else
+                <div class="mb-8 p-6 rounded-xl bg-haze-50/80 border border-haze-200 text-center">
+                    <p class="text-dark-800/70 mb-4">登录或注册后可参与评论</p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <a href="{{ route('front.register', ['return_url' => url()->current()]) }}" class="inline-flex items-center px-5 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 font-medium transition-colors">注册</a>
+                        <a href="{{ route('front.login', ['return_url' => url()->current()]) }}" class="inline-flex items-center px-5 py-2.5 border border-primary-500 text-primary-600 rounded-xl hover:bg-primary-50 font-medium transition-colors">登录</a>
+                    </div>
+                </div>
+                @endauth
 
                 @if($comments->isNotEmpty())
                 <div class="space-y-5">
@@ -131,8 +142,20 @@ document.getElementById('comment-form')?.addEventListener('submit', function(e) 
         },
         body: fd
     })
-    .then(r => r.json())
-    .then(data => {
+    .then(function(r) {
+        if (r.status === 401) {
+            return r.json().then(function(data) {
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    window.location.href = '{{ route("front.register", ["return_url" => url()->current()]) }}';
+                }
+            });
+        }
+        return r.json();
+    })
+    .then(function(data) {
+        if (!data) return;
         msgEl.textContent = data.message || '提交成功';
         msgEl.classList.add(data.message && data.message.includes('失败') ? 'text-red-600' : 'text-green-600');
         if (data.message && !data.message.includes('失败')) {
