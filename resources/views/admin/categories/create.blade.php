@@ -27,6 +27,12 @@
                 </select>
             </div>
             <div>
+                <label class="block text-sm font-medium mb-1">状态</label>
+                <label class="inline-flex items-center gap-2 mr-4"><input type="radio" name="status" value="1" {{ old('status', 1) == 1 ? 'checked' : '' }}> 启用</label>
+                <label class="inline-flex items-center gap-2"><input type="radio" name="status" value="0" {{ old('status', 1) == 0 ? 'checked' : '' }}> 禁用</label>
+                <p class="text-xs text-slate-500 mt-1">禁用的分类不会在前端显示</p>
+            </div>
+            <div>
                 <label class="block text-sm font-medium mb-1">排序</label>
                 <input type="number" name="sort" value="{{ old('sort', 0) }}" min="0" class="w-full rounded border-slate-300">
             </div>

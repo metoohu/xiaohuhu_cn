@@ -11,6 +11,8 @@
 
     <form action="{{ route('admin.categories.batch') }}" method="POST" id="categoryBatchForm" class="mb-4 flex flex-wrap items-center gap-2">
         @csrf
+        <button type="submit" name="action" value="enable" class="px-3 py-1.5 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200">批量启用</button>
+        <button type="submit" name="action" value="disable" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">批量禁用</button>
         <button type="submit" name="action" value="modify" class="px-3 py-1.5 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200">批量修改</button>
         <select name="parent_id" class="rounded border-slate-300 text-sm py-1 px-2">
             <option value="">父级不变</option>
@@ -32,6 +34,7 @@
                 <th class="text-left py-2">slug</th>
                 <th class="text-left py-2">父级</th>
                 <th class="text-left py-2">排序</th>
+                <th class="text-left py-2">状态</th>
                 <th class="text-left py-2">文章数</th>
                 <th class="text-left py-2">操作</th>
             </tr>
@@ -45,6 +48,13 @@
                 <td class="py-2 text-slate-500">{{ $c->slug ?? '-' }}</td>
                 <td class="py-2">{{ $c->parent?->name ?? '-' }}</td>
                 <td class="py-2">{{ $c->sort }}</td>
+                <td class="py-2">
+                    @if(($c->status ?? 1) == 1)
+                        <span class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-800">启用</span>
+                    @else
+                        <span class="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600">禁用</span>
+                    @endif
+                </td>
                 <td class="py-2">{{ $c->articles_count ?? 0 }}</td>
                 <td class="py-2">
                     <a href="{{ route('admin.categories.edit', ['category' => $c->id]) }}" class="text-blue-600 hover:underline">编辑</a>

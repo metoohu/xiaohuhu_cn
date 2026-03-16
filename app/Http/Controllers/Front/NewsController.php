@@ -17,7 +17,7 @@ class NewsController extends Controller
             ->orderByDesc('created_at')
             ->paginate(config('front.article_per_page', 15));
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])
@@ -50,7 +50,7 @@ class NewsController extends Controller
             ->orderBy('id')
             ->first();
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])

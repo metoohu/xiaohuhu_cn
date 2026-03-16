@@ -48,10 +48,12 @@ class CategoryController extends Controller
             'sort' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:255',
             'icon' => 'nullable|image|max:2048',
+            'status' => 'nullable|in:0,1',
         ]);
 
-        $data = $request->only('name', 'parent_id', 'sort', 'description');
+        $data = $request->only('name', 'parent_id', 'sort', 'description', 'status');
         $data['sort'] = $data['sort'] ?? 0;
+        $data['status'] = isset($data['status']) ? (int) $data['status'] : Category::STATUS_ENABLED;
         if ($request->filled('slug')) {
             $data['slug'] = $request->slug;
         } else {
@@ -102,9 +104,10 @@ class CategoryController extends Controller
             'sort' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:255',
             'icon' => 'nullable|image|max:2048',
+            'status' => 'nullable|in:0,1',
         ]);
 
-        $data = $request->only('name', 'parent_id', 'sort', 'description');
+        $data = $request->only('name', 'parent_id', 'sort', 'description', 'status');
         if ($request->filled('slug')) {
             $data['slug'] = $request->slug;
         } else {
@@ -112,6 +115,9 @@ class CategoryController extends Controller
         }
         if (isset($data['parent_id']) && $data['parent_id'] == $category->id) {
             $data['parent_id'] = null;
+        }
+        if (isset($data['status'])) {
+            $data['status'] = (int) $data['status'];
         }
 
         if ($request->hasFile('icon')) {
@@ -129,12 +135,28 @@ class CategoryController extends Controller
     public function batchAction(Request $request): RedirectResponse
     {
         $request->validate([
-            'action' => 'required|in:delete,modify',
+            'action' => 'required|in:delete,modify,enable,disable',
             'ids' => 'required|array',
             'ids.*' => 'exists:categories,id',
         ]);
 
         $categories = Category::whereIn('id', $request->ids)->get();
+
+        if ($request->action === 'enable') {
+            foreach ($categories as $category) {
+                $category->update(['status' => Category::STATUS_ENABLED]);
+            }
+
+            return back()->with('success', '已批量启用 ' . count($categories) . ' 个分类');
+        }
+
+        if ($request->action === 'disable') {
+            foreach ($categories as $category) {
+                $category->update(['status' => Category::STATUS_DISABLED]);
+            }
+
+            return back()->with('success', '已批量禁用 ' . count($categories) . ' 个分类');
+        }
 
         if ($request->action === 'delete') {
             $deleted = 0;

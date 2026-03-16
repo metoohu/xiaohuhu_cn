@@ -11,7 +11,7 @@ class AboutController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])

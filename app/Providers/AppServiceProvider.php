@@ -76,11 +76,11 @@ class AppServiceProvider extends ServiceProvider
         }
 
         View::composer('front.layouts.master', function ($view) {
-            $view->with('navCategories', Category::where('status', 1)
+            $view->with('navCategories', Category::enabled()
                 ->whereNull('parent_id')
                 ->whereNotNull('slug')
                 ->orderBy('sort')
-                ->with(['children' => fn ($q) => $q->where('status', 1)->whereNotNull('slug')->orderBy('sort')])
+                ->with(['children' => fn ($q) => $q->where('status', Category::STATUS_ENABLED)->whereNotNull('slug')->orderBy('sort')])
                 ->get());
             if (request()->routeIs('front.categories.show') && $cat = request()->route('category')) {
                 $view->with('currentCategory', $cat);

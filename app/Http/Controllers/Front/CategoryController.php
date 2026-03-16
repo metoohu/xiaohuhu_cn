@@ -12,7 +12,7 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])
@@ -29,9 +29,9 @@ class CategoryController extends Controller
 
     public function show(Category $category): View
     {
-        $category->load('children');
+        $category->load(['children' => fn ($q) => $q->where('status', Category::STATUS_ENABLED)->orderBy('sort')]);
 
-        if (isset($category->status) && $category->status != 1) {
+        if ($category->status != Category::STATUS_ENABLED) {
             abort(404);
         }
 
@@ -43,7 +43,7 @@ class CategoryController extends Controller
             ->orderByDesc('created_at')
             ->paginate(config('front.article_per_page', 15));
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])

@@ -43,7 +43,7 @@ class ArticleController extends Controller
 
         $keyword = $request->keyword ?? '';
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])
@@ -81,7 +81,7 @@ class ArticleController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])

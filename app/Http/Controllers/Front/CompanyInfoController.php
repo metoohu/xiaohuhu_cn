@@ -21,7 +21,7 @@ class CompanyInfoController extends Controller
             ->orderByDesc('id')
             ->paginate(15);
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])

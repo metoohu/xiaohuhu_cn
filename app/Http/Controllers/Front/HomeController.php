@@ -18,8 +18,8 @@ class HomeController extends Controller
             $banners = Setting::get('banner_images');
             $banners = $banners ? json_decode($banners, true) : [];
 
-            $awake = Category::where('slug', 'awake')->with('children')->first();
-            $healing = Category::where('slug', 'healing')->with('children')->first();
+            $awake = Category::enabled()->where('slug', 'awake')->with(['children' => fn ($q) => $q->where('status', Category::STATUS_ENABLED)])->first();
+            $healing = Category::enabled()->where('slug', 'healing')->with(['children' => fn ($q) => $q->where('status', Category::STATUS_ENABLED)])->first();
             $awakeIds = $awake ? $awake->children->pluck('id')->push($awake->id)->toArray() : [];
             $healingIds = $healing ? $healing->children->pluck('id')->push($healing->id)->toArray() : [];
 
@@ -45,11 +45,11 @@ class HomeController extends Controller
             ];
         });
 
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])
-            ->with(['children' => fn ($q) => $q->where('status', 1)->orderBy('sort')])
+            ->with(['children' => fn ($q) => $q->where('status', Category::STATUS_ENABLED)->orderBy('sort')])
             ->get();
 
         $seo = [
@@ -66,7 +66,7 @@ class HomeController extends Controller
 
     public function notFound()
     {
-        $categories = Category::where('status', 1)
+        $categories = Category::enabled()
             ->whereNull('parent_id')
             ->orderBy('sort')
             ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])
