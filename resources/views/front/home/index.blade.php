@@ -37,7 +37,6 @@
     </div>
     @endif
     <div class="relative z-10 text-white text-center px-6 max-w-[800px]">
-        <h1 class="text-2xl md:text-3xl font-semibold mb-3 tracking-wide drop-shadow-lg">小糊涂人生馆</h1>
         <p class="text-base md:text-lg leading-relaxed opacity-95 drop-shadow-md" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5);">人间清醒，治愈文字。<br>在喧嚣中寻一方宁静，用文字温暖你我。</p>
     </div>
 </section>
