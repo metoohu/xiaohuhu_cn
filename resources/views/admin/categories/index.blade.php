@@ -9,7 +9,23 @@
         <a href="{{ route('admin.categories.create') }}" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 text-sm">新增分类</a>
     </div>
 
-    <form action="{{ route('admin.categories.batch') }}" method="POST" id="categoryBatchForm" class="mb-4 flex flex-wrap items-center gap-2">
+    @php
+        $filterBase = request()->except(['status', 'page']);
+        $filterAll = route('admin.categories.index', $filterBase);
+        $filterEnabled = route('admin.categories.index', array_merge($filterBase, ['status' => 1]));
+        $filterDisabled = route('admin.categories.index', array_merge($filterBase, ['status' => 0]));
+        $currentFilter = request('status');
+    @endphp
+    <div class="mb-4 flex flex-wrap items-center gap-4">
+        <div class="inline-flex p-1 bg-slate-100 rounded-lg" role="tablist" aria-label="状态筛选">
+            <a href="{{ $filterAll }}" class="px-4 py-2 rounded-md text-sm font-medium transition-all {{ ($currentFilter === null || $currentFilter === '') ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800' }}">全部</a>
+            <a href="{{ $filterEnabled }}" class="px-4 py-2 rounded-md text-sm font-medium transition-all {{ $currentFilter === '1' ? 'bg-white text-green-700 shadow-sm' : 'text-slate-600 hover:text-slate-800' }}">启用</a>
+            <a href="{{ $filterDisabled }}" class="px-4 py-2 rounded-md text-sm font-medium transition-all {{ $currentFilter === '0' ? 'bg-white text-slate-600 shadow-sm' : 'text-slate-600 hover:text-slate-800' }}">禁用</a>
+        </div>
+        @if($currentFilter !== null && $currentFilter !== '')
+        <a href="{{ $filterAll }}" class="text-xs text-slate-500 hover:text-slate-700">清除筛选</a>
+        @endif
+        <form action="{{ route('admin.categories.batch') }}" method="POST" id="categoryBatchForm" class="flex flex-wrap items-center gap-2">
         @csrf
         <button type="submit" name="action" value="enable" class="px-3 py-1.5 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200">批量启用</button>
         <button type="submit" name="action" value="disable" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded text-sm hover:bg-slate-200">批量禁用</button>
@@ -23,7 +39,8 @@
         </select>
         <input type="number" name="sort" placeholder="排序" min="0" class="rounded border-slate-300 text-sm py-1 px-2 w-20">
         <button type="submit" name="action" value="delete" class="px-3 py-1.5 bg-red-100 text-red-800 rounded text-sm hover:bg-red-200">批量删除</button>
-    </form>
+        </form>
+    </div>
 
     <table class="min-w-full text-sm">
         <thead>

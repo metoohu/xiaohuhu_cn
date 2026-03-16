@@ -13,13 +13,17 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $status = $request->input('status');
+
         $categories = Category::with('parent')
             ->withCount('articles')
+            ->when($status !== null && $status !== '', fn ($q) => $q->where('status', (int) $status))
             ->orderBy('sort')
             ->orderBy('id')
-            ->paginate(config('admin.per_page', 10));
+            ->paginate(config('admin.per_page', 10))
+            ->withQueryString();
 
         $parentOptions = Category::orderBy('sort')->orderBy('id')->get();
 
