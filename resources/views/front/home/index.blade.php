@@ -16,7 +16,6 @@
 @endphp
 <section class="h-[400px] bg-cover bg-center flex items-center justify-center text-white text-center px-5" style="background: {{ $bannerUrl ? "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('" . e($bannerUrl) . "')" : 'linear-gradient(135deg, #6b8e82 0%, #8fa99e 50%, #a8c9bc 100%)' }}; background-size: cover; background-position: center;">
     <div class="max-w-[800px]">
-        <h1 class="text-3xl md:text-4xl font-semibold mb-5">小糊涂人生馆</h1>
         <p class="text-lg leading-relaxed">人间清醒，治愈文字。<br>在喧嚣中寻一方宁静，用文字温暖你我。</p>
     </div>
 </section>
