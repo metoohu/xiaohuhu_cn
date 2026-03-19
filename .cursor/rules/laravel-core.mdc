@@ -1,0 +1,32 @@
+---
+description: Laravel 專案核心規範與技術棧
+alwaysApply: true
+---
+
+# Laravel 專案規範
+
+## 技術棧
+
+- **框架**: Laravel 12、PHP 8.2+
+- **前端**: Vite 7、Tailwind CSS 4、Alpine.js
+- **認證**: Laravel Breeze
+- **套件**: Spatie Permission、Intervention Image、Maatwebsite Excel、Mews Captcha、Spatie Backup
+
+## 專案結構
+
+- **前台**: `App\Http\Controllers\Front\*`、`resources/views/front/`
+- **後台**: `App\Http\Controllers\Admin\*`、`resources/views/admin/`
+- **模型**: `App\Models\*`，後台相關模型在 `App\Models\Admin\*`
+- **表單驗證**: 使用 `FormRequest`，放在 `App\Http\Requests\Admin\*`
+
+## 命名慣例
+
+- 路由名稱：前台 `front.*`，後台 `admin.*`
+- 視圖路徑：`admin.xxx.index`、`front.xxx.show` 等
+- 控制器方法回傳型別：`View`、`RedirectResponse` 等
+
+## 開發指令
+
+- `composer dev`：同時啟動 server、queue、pail、vite
+- `php artisan test`：執行測試
+- 使用 Laravel Pint 進行程式碼風格檢查
