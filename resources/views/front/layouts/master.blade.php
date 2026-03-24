@@ -50,6 +50,7 @@
         {{-- 登录/注册 固定右上角，不影响主菜单 --}}
         <div class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 items-center gap-3">
             @auth
+            <a href="{{ route('front.my.stickers') }}" class="text-[14px] text-[#6b8e82] hover:text-[#4a6d63] transition-colors px-2 py-1 rounded hover:bg-[#f5f8f6]">我的表情</a>
             <span class="text-[14px] text-[#777]">{{ Auth::user()->name }}</span>
             <form action="{{ route('front.logout') }}" method="POST" class="inline">
                 @csrf
@@ -127,12 +128,15 @@
                 @endif
                 @endforeach
                 @auth
-                <div class="pt-2 mt-2 border-t border-[#eee] flex items-center justify-between">
+                <div class="pt-2 mt-2 border-t border-[#eee] space-y-2">
+                    <a href="{{ route('front.my.stickers') }}" class="block py-1 text-[#6b8e82] hover:text-[#4a6d63]">我的表情</a>
+                    <div class="flex items-center justify-between">
                     <span class="text-[#777]">{{ Auth::user()->name }}</span>
                     <form action="{{ route('front.logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="text-[#6b8e82] hover:text-[#4a6d63]">退出</button>
                     </form>
+                    </div>
                 </div>
                 @else
                 <a href="{{ route('front.login') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">登录</a>

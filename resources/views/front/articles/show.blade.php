@@ -47,14 +47,48 @@
                 <h2 class="text-xl font-serif font-semibold text-primary-800 mb-6">评论区 ({{ $comments->count() }})</h2>
 
                 @auth
-                <form id="comment-form" class="mb-8" x-data="{ submitting: false }">
+                <form id="comment-form" class="mb-8" x-data="commentFormState()" x-init="loadMyStickers()" @submit.prevent="submitComment()">
                     @csrf
                     <input type="hidden" name="article_id" value="{{ $article->id }}">
                     <input type="hidden" name="return_url" value="{{ url()->current() }}">
-                    <div class="mb-4">
-                        <textarea name="content" rows="4" class="w-full rounded-xl border border-haze-200 px-4 py-3 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 outline-none transition bg-haze-50/50" placeholder="写下你的想法..." required></textarea>
+                    <div class="mb-3 flex flex-wrap items-center gap-2">
+                        <button type="button" @click="toggleEmoji()" class="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-xl border border-haze-200 bg-white hover:bg-haze-50 text-dark-800/80 transition-colors">
+                            <span aria-hidden="true">😊</span> 表情
+                        </button>
+                        <button type="button" @click="toggleStickers()" class="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-xl border border-haze-200 bg-white hover:bg-haze-50 text-dark-800/80 transition-colors">
+                            <span aria-hidden="true">🖼</span> 我的表情
+                        </button>
+                        <a href="{{ route('front.my.stickers') }}" class="text-sm text-primary-600 hover:text-primary-700 ml-1">管理表情包</a>
                     </div>
-                    <button type="submit" :disabled="submitting" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 font-medium disabled:opacity-50 transition-colors">
+                    <div x-show="emojiOpen" x-cloak x-transition class="mb-3 p-3 rounded-xl border border-haze-200 bg-haze-50/80 max-h-40 overflow-y-auto">
+                        <p class="text-xs text-dark-800/50 mb-2">点击插入到光标处</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            @foreach(['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','😉','😍','🥰','😘','😋','😎','🤩','🥳','😢','😭','😤','🤔','👍','👏','🙏','❤️','💕','✨','🌟','🔥','🌸','🍀','☕','🎉'] as $emo)
+                            <button type="button" @click="insertText(@js($emo))" class="text-xl leading-none p-1 rounded hover:bg-white transition-colors">{{ $emo }}</button>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div x-show="stickerOpen" x-cloak x-transition class="mb-3 p-3 rounded-xl border border-haze-200 bg-haze-50/80 max-h-48 overflow-y-auto">
+                        <template x-if="stickers.length === 0">
+                            <p class="text-sm text-dark-800/60">暂无自定义表情，<a href="{{ route('front.my.stickers') }}" class="text-primary-600 hover:underline">去上传</a></p>
+                        </template>
+                        <template x-if="stickers.length > 0">
+                            <div>
+                                <p class="text-xs text-dark-800/50 mb-2">点击插入表情（仅本人上传的可用）</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="s in stickers" :key="s.id">
+                                        <button type="button" @click="insertSticker(s.id)" class="w-12 h-12 p-1 rounded-lg border border-haze-200 bg-white hover:border-primary-400 transition-colors">
+                                            <img :src="s.url" alt="" class="w-full h-full object-contain">
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="mb-4">
+                        <textarea id="comment-content" name="content" rows="4" class="w-full rounded-xl border border-haze-200 px-4 py-3 focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 outline-none transition bg-haze-50/50 resize-y" placeholder="写下你的想法..." required></textarea>
+                    </div>
+                    <button type="submit" :disabled="submitting" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 font-medium disabled:opacity-50 transition-colors shadow-sm">
                         <span x-show="!submitting">提交评论</span>
                         <span x-show="submitting" x-cloak>提交中...</span>
                     </button>
@@ -78,7 +112,7 @@
                             <span class="font-medium text-primary-800">{{ $comment->author_name ?: ($comment->user?->name ?? '游客') }}</span>
                             <span class="text-dark-800/50 text-sm">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
                         </div>
-                        <div class="text-dark-800/80">{{ $comment->content }}</div>
+                        <div class="text-dark-800/80 break-words">{!! $comment->content_html !!}</div>
                     </div>
                     @endforeach
                 </div>
@@ -120,52 +154,89 @@
 
 @push('scripts')
 <script>
-document.getElementById('comment-form')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    var form = this;
-    var btn = form.querySelector('button[type="submit"]');
-    var msgEl = document.getElementById('comment-message');
-    if (!msgEl) return;
-    btn.disabled = true;
-    msgEl.textContent = '提交中...';
-    msgEl.classList.remove('hidden');
-    msgEl.classList.remove('text-green-600', 'text-red-600');
-
-    var fd = new FormData(form);
-
-    fetch('{{ route("front.comments.store") }}', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+function commentFormState() {
+    return {
+        submitting: false,
+        emojiOpen: false,
+        stickerOpen: false,
+        stickers: [],
+        toggleEmoji() {
+            this.emojiOpen = !this.emojiOpen;
+            if (this.emojiOpen) this.stickerOpen = false;
         },
-        body: fd
-    })
-    .then(function(r) {
-        if (r.status === 401) {
-            return r.json().then(function(data) {
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    window.location.href = '{{ route("front.register", ["return_url" => url()->current()]) }}';
+        toggleStickers() {
+            this.stickerOpen = !this.stickerOpen;
+            if (this.stickerOpen) this.emojiOpen = false;
+        },
+        loadMyStickers() {
+            fetch('{{ route("front.my.stickers.json") }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function(r) { return r.json(); }).then(function(d) {
+                this.stickers = d.stickers || [];
+            }.bind(this)).catch(function() {});
+        },
+        insertText(str) {
+            var ta = document.getElementById('comment-content');
+            if (!ta) return;
+            var start = ta.selectionStart, end = ta.selectionEnd;
+            var v = ta.value;
+            ta.value = v.slice(0, start) + str + v.slice(end);
+            ta.focus();
+            var pos = start + str.length;
+            ta.setSelectionRange(pos, pos);
+        },
+        insertSticker(id) {
+            this.insertText('[:sticker:' + id + ']');
+        },
+        submitComment() {
+            var form = document.getElementById('comment-form');
+            var msgEl = document.getElementById('comment-message');
+            if (!form || !msgEl) return;
+            this.submitting = true;
+            msgEl.textContent = '提交中...';
+            msgEl.classList.remove('hidden', 'text-green-600', 'text-red-600');
+            var fd = new FormData(form);
+            var self = this;
+            fetch('{{ route("front.comments.store") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: fd
+            })
+            .then(function(r) {
+                if (r.status === 401) {
+                    return r.json().then(function(data) {
+                        if (data.redirect_url) window.location.href = data.redirect_url;
+                        else window.location.href = '{{ route("front.register", ["return_url" => url()->current()]) }}';
+                    });
                 }
-            });
+                return r.json().then(function(data) {
+                    return { ok: r.ok, data: data };
+                });
+            })
+            .then(function(res) {
+                if (!res || !res.data) return;
+                var data = res.data;
+                var msg = data.message || '';
+                var fail = !res.ok || /失败|无效|最多|关闭/.test(msg);
+                msgEl.textContent = msg || (res.ok ? '提交成功' : '提交失败');
+                msgEl.classList.add(fail ? 'text-red-600' : 'text-green-600');
+                if (res.ok && !fail) {
+                    form.querySelector('textarea[name="content"]').value = '';
+                    setTimeout(function() { location.reload(); }, 1500);
+                }
+            })
+            .catch(function() {
+                msgEl.textContent = '提交失败，请重试';
+                msgEl.classList.add('text-red-600');
+            })
+            .finally(function() { self.submitting = false; });
         }
-        return r.json();
-    })
-    .then(function(data) {
-        if (!data) return;
-        msgEl.textContent = data.message || '提交成功';
-        msgEl.classList.add(data.message && data.message.includes('失败') ? 'text-red-600' : 'text-green-600');
-        if (data.message && !data.message.includes('失败')) {
-            form.querySelector('textarea[name="content"]').value = '';
-            setTimeout(function() { location.reload(); }, 1500);
-        }
-    })
-    .catch(function() { msgEl.textContent = '提交失败，请重试'; msgEl.classList.add('text-red-600'); })
-    .finally(function() { btn.disabled = false; });
-});
+    };
+}
 </script>
 @endpush
 @endsection

@@ -45,4 +45,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function stickers()
+    {
+        return $this->hasMany(UserSticker::class)->orderBy('sort')->orderBy('id');
+    }
 }

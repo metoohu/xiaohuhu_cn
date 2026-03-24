@@ -14,7 +14,7 @@
     </dl>
     <div class="mt-4">
         <label class="text-sm font-medium text-slate-500">内容</label>
-        <p class="mt-1 p-3 bg-slate-50 rounded">{{ $comment->content }}</p>
+        <div class="mt-1 p-3 bg-slate-50 rounded break-words">{!! $comment->content_html !!}</div>
     </div>
     <div class="mt-4">
         <a href="{{ route('admin.comments.edit', $comment) }}" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 text-sm">编辑</a>

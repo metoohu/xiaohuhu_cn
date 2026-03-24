@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
-use App\Models\User;
+use App\Support\CommentContentFormatter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -44,6 +44,13 @@ class CommentController extends Controller
             'status' => 'required|in:pending,approved,rejected',
             'content' => 'required|string|max:2000',
         ]);
+
+        if ($comment->user_id) {
+            $stickerErr = CommentContentFormatter::validateUserStickers($request->input('content', ''), (int) $comment->user_id);
+            if ($stickerErr !== null) {
+                return back()->withInput()->withErrors(['content' => $stickerErr]);
+            }
+        }
 
         $comment->update($request->only('status', 'content'));
 

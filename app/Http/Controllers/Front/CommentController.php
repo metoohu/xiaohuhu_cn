@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
+use App\Support\CommentContentFormatter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,11 @@ class CommentController extends Controller
             'article_id' => 'required|exists:articles,id',
             'content' => 'required|string|max:2000',
         ]);
+
+        $stickerErr = CommentContentFormatter::validateUserStickers($request->input('content', ''), (int) auth()->id());
+        if ($stickerErr !== null) {
+            return response()->json(['message' => $stickerErr], 422);
+        }
 
         $article = \App\Models\Article::findOrFail($request->article_id);
         if ($article->status !== 'published') {

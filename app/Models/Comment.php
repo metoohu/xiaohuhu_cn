@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CommentContentFormatter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,5 +33,11 @@ class Comment extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    /** 前台/后台展示用：表情占位符转图片，文本转义 */
+    public function getContentHtmlAttribute(): string
+    {
+        return CommentContentFormatter::toHtml($this->content ?? '');
     }
 }

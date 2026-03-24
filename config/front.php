@@ -33,4 +33,16 @@ return [
         'description' => env('FRONT_SEO_DESCRIPTION', '人间清醒，治愈文字。在喧嚣中寻一方宁静，用文字温暖你我。'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | 用户自定义表情包（评论 [:sticker:id]）
+    |--------------------------------------------------------------------------
+    */
+    'stickers' => [
+        'upload_path' => env('FRONT_STICKER_UPLOAD_PATH', 'uploads/stickers'),
+        'max_per_user' => (int) env('FRONT_STICKER_MAX_PER_USER', 50),
+        'max_per_comment' => (int) env('FRONT_STICKER_MAX_PER_COMMENT', 20),
+        'max_kb' => (int) env('FRONT_STICKER_MAX_KB', 512),
+    ],
+
 ];

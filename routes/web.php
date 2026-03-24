@@ -7,6 +7,7 @@ use App\Http\Controllers\Front\CompanyInfoController;
 use App\Http\Controllers\Front\ArticleController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\CommentController;
+use App\Http\Controllers\Front\UserStickerController;
 use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\NewsController;
 use App\Http\Controllers\Front\SearchController;
@@ -48,6 +49,14 @@ Route::get('news/{news}', [NewsController::class, 'show'])->name('front.news.sho
 
 // 评论提交（异步）
 Route::post('comments', [CommentController::class, 'store'])->name('front.comments.store');
+
+// 登录用户：表情包管理（评论区可选用）
+Route::middleware('auth')->prefix('my')->name('front.my.')->group(function () {
+    Route::get('stickers', [UserStickerController::class, 'index'])->name('stickers');
+    Route::get('stickers/json', [UserStickerController::class, 'json'])->name('stickers.json');
+    Route::post('stickers', [UserStickerController::class, 'store'])->name('stickers.store');
+    Route::delete('stickers/{userSticker}', [UserStickerController::class, 'destroy'])->name('stickers.destroy');
+});
 
 // ========== 公司信息（原有功能） ==========
 
