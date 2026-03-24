@@ -21,7 +21,7 @@
             <div>
                 <label class="block text-sm font-medium mb-1">父级分类</label>
                 <select name="parent_id" class="w-full rounded border-slate-300">
-                    <option value="">无</option>
+                    <option value="" {{ in_array(old('parent_id', $category->parent_id), [null, ''], true) ? 'selected' : '' }}>无</option>
                     @foreach ($parents as $p)
                         <option value="{{ $p->id }}" {{ old('parent_id', $category->parent_id) == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
                     @endforeach

@@ -53,14 +53,14 @@ class ArticleController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        $categories = Category::orderBy('sort')->get();
+        $categories = Category::getTreeOptions();
 
         return view('admin.articles.index', compact('articles', 'categories'));
     }
 
     public function create(): View
     {
-        $categories = Category::orderBy('sort')->get();
+        $categories = Category::getTreeOptions();
 
         return view('admin.articles.create', compact('categories'));
     }
@@ -109,7 +109,7 @@ class ArticleController extends Controller
 
     public function edit(Article $article): View
     {
-        $categories = Category::orderBy('sort')->get();
+        $categories = Category::getTreeOptions();
 
         return view('admin.articles.edit', compact('article', 'categories'));
     }

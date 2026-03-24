@@ -24,7 +24,7 @@
         .admin-main { transition: background-color 0.4s ease; }
         .admin-card { background-color: var(--admin-bg-card); transition: background-color 0.4s ease; }
 
-        /* 表单输入框 - 悬停与聚焦效果 */
+        /* 表单输入框 - 边框与交互效果 */
         .admin-main input[type="text"],
         .admin-main input[type="email"],
         .admin-main input[type="password"],
@@ -32,6 +32,8 @@
         .admin-main input[type="file"],
         .admin-main select,
         .admin-main textarea {
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 0.5rem;
             transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
         }
         .admin-main input[type="text"]:hover,
@@ -51,8 +53,8 @@
         .admin-main input[type="file"]:focus,
         .admin-main select:focus,
         .admin-main textarea:focus {
-            border-color: #64748b !important;
-            box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
+            border-color: #475569 !important;
+            box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.12);
             outline: none;
         }
         /* 卡片随主题变色 + 3D 效果 */
@@ -84,12 +86,16 @@
             transform: translateX(2px);
         }
 
-        /* 主按钮 3D 效果 (深色) */
+        /* 主按钮 - 边框与 3D 效果 (深色) */
         .admin-main a.bg-slate-800,
         .admin-main a.bg-slate-600,
         .admin-main button.bg-slate-800,
         .admin-main button.bg-slate-600,
-        .admin-main a.bg-slate-700 { transition: all 0.2s ease; }
+        .admin-main a.bg-slate-700 {
+            border: 1.5px solid rgba(0,0,0,0.2) !important;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
         .admin-main a.bg-slate-800:hover,
         .admin-main a.bg-slate-600:hover,
         .admin-main button.bg-slate-800:hover,
@@ -97,6 +103,7 @@
         .admin-main a.bg-slate-700:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            border-color: rgba(0,0,0,0.25) !important;
         }
         .admin-main a.bg-slate-800:active,
         .admin-main a.bg-slate-600:active,
@@ -106,41 +113,57 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        /* 次要按钮 3D 效果 (灰色) */
+        /* 次要按钮 - 边框与 3D 效果 (灰色) */
         .admin-main a.bg-slate-200,
         .admin-main button.bg-slate-200,
-        .admin-main a.bg-slate-300 { transition: all 0.2s ease; }
+        .admin-main a.bg-slate-300 {
+            border: 1.5px solid #94a3b8 !important;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
         .admin-main a.bg-slate-200:hover,
         .admin-main button.bg-slate-200:hover,
         .admin-main a.bg-slate-300:hover {
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            border-color: #64748b !important;
         }
         .admin-main a.bg-slate-200:active,
         .admin-main button.bg-slate-200:active {
             transform: translateY(0);
         }
 
-        /* 彩色按钮 3D (绿/琥珀/红) */
+        /* 彩色按钮 - 边框与 3D (绿/琥珀/红) */
         .admin-main a.bg-green-600,
         .admin-main a.bg-amber-600,
         .admin-main button.bg-green-600,
-        .admin-main button.bg-amber-600,
+        .admin-main button.bg-amber-600 {
+            border: 1.5px solid rgba(0,0,0,0.15) !important;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
         .admin-main a.bg-green-100,
         .admin-main a.bg-amber-100,
         .admin-main a.bg-red-100,
+        .admin-main a.bg-slate-100,
         .admin-main button.bg-green-100,
         .admin-main button.bg-amber-100,
-        .admin-main button.bg-red-100 { transition: all 0.2s ease; }
+        .admin-main button.bg-red-100,
+        .admin-main button.bg-slate-100 {
+            border: 1.5px solid rgba(148, 163, 184, 0.6) !important;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
         .admin-main a.bg-green-600:hover, .admin-main button.bg-green-600:hover,
         .admin-main a.bg-amber-600:hover, .admin-main button.bg-amber-600:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-        .admin-main a.bg-green-100:hover, .admin-main a.bg-amber-100:hover, .admin-main a.bg-red-100:hover,
-        .admin-main button.bg-green-100:hover, .admin-main button.bg-amber-100:hover, .admin-main button.bg-red-100:hover {
+        .admin-main a.bg-green-100:hover, .admin-main a.bg-amber-100:hover, .admin-main a.bg-red-100:hover, .admin-main a.bg-slate-100:hover,
+        .admin-main button.bg-green-100:hover, .admin-main button.bg-amber-100:hover, .admin-main button.bg-red-100:hover, .admin-main button.bg-slate-100:hover {
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-color: #94a3b8 !important;
         }
 
         /* 表格行交互 */
@@ -175,8 +198,23 @@
             box-shadow: 0 12px 28px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04);
         }
 
-        /* 顶部 header 链接/按钮 */
-        header a:hover, header button:hover { opacity: 0.85; }
+        /* 顶部 header 链接/按钮 - 边框 */
+        header button[type="button"],
+        header button[type="submit"] {
+            border: 1px solid transparent;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        header button[type="button"]:hover,
+        header button[type="submit"]:hover {
+            border-color: #e2e8f0;
+        }
+        header a.rounded {
+            border: 1px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+        header a.rounded:hover {
+            border-color: #e2e8f0;
+        }
     </style>
     @stack('styles')
 </head>

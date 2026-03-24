@@ -25,14 +25,14 @@ class CategoryController extends Controller
             ->paginate(config('admin.per_page', 10))
             ->withQueryString();
 
-        $parentOptions = Category::orderBy('sort')->orderBy('id')->get();
+        $parentOptions = Category::getTreeOptions();
 
         return view('admin.categories.index', compact('categories', 'parentOptions'));
     }
 
     public function create(): View
     {
-        $parents = Category::whereNull('parent_id')->orderBy('sort')->get();
+        $parents = Category::getTreeOptions();
 
         return view('admin.categories.create', compact('parents'));
     }
@@ -88,7 +88,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category): View
     {
-        $parents = Category::whereNull('parent_id')->where('id', '!=', $category->id)->orderBy('sort')->get();
+        $parents = Category::getTreeOptions($category->id);
 
         return view('admin.categories.edit', compact('category', 'parents'));
     }
