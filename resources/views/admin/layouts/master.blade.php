@@ -24,16 +24,33 @@
         .admin-main { transition: background-color 0.4s ease; }
         .admin-card { background-color: var(--admin-bg-card); transition: background-color 0.4s ease; }
 
-        /* 表单输入框 - 边框与交互效果 */
+        /* 表单输入框 - 高度 45px、边框与交互效果 */
         .admin-main input[type="text"],
         .admin-main input[type="email"],
         .admin-main input[type="password"],
         .admin-main input[type="number"],
-        .admin-main input[type="file"],
-        .admin-main select,
-        .admin-main textarea {
+        .admin-main select {
+            height: 45px !important;
+            min-height: 45px !important;
             border: 1.5px solid #cbd5e1 !important;
             border-radius: 0.5rem;
+            box-sizing: border-box;
+            padding: 0 0.75rem;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+        }
+        .admin-main input[type="file"] {
+            min-height: 45px !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+        }
+        .admin-main textarea {
+            min-height: 90px !important;
+            border: 1.5px solid #cbd5e1 !important;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            box-sizing: border-box;
             transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
         }
         .admin-main input[type="text"]:hover,
