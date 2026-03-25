@@ -30,7 +30,13 @@ Route::middleware(['admin.auth'])->group(function () {
         Route::get('logs', [\App\Http\Controllers\Admin\ProfileController::class, 'loginLogs'])->name('logs');
     });
 
-    // 用户管理
+    // 前台注册会员（禁言、资料查看）
+    Route::get('members', [\App\Http\Controllers\Admin\MemberController::class, 'index'])->name('members.index');
+    Route::get('members/{user}', [\App\Http\Controllers\Admin\MemberController::class, 'show'])->name('members.show');
+    Route::post('members/{user}/mute', [\App\Http\Controllers\Admin\MemberController::class, 'mute'])->name('members.mute');
+    Route::post('members/{user}/unmute', [\App\Http\Controllers\Admin\MemberController::class, 'unmute'])->name('members.unmute');
+
+    // 用户管理（后台账号）
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     Route::post('users/batch', [\App\Http\Controllers\Admin\UserController::class, 'batchAction'])->name('users.batch');
     Route::get('users/export', [\App\Http\Controllers\Admin\UserController::class, 'export'])->name('users.export');

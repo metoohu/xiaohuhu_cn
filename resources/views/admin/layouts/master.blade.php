@@ -246,6 +246,7 @@
             <nav class="p-2 space-y-1">
                 <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700' : '' }}">仪表盘</a>
                 <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.users.*') ? 'bg-slate-700' : '' }}">用户管理</a>
+                <a href="{{ route('admin.members.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.members.*') ? 'bg-slate-700' : '' }}">前台会员</a>
                 <a href="{{ route('admin.roles.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.roles.*') ? 'bg-slate-700' : '' }}">角色管理</a>
                 <a href="{{ route('admin.categories.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.categories.*') ? 'bg-slate-700' : '' }}">分类管理</a>
                 <a href="{{ route('admin.articles.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.articles.*') ? 'bg-slate-700' : '' }}">文章管理</a>

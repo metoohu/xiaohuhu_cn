@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +22,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
+        'signature',
+        'mood_emoji',
+        'mood_text',
+        'birthday',
+        'gender',
+        'interests',
+        'occupation',
+        'comment_banned_at',
+        'comment_ban_reason',
     ];
 
     /**
@@ -43,11 +54,23 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birthday' => 'date',
+            'comment_banned_at' => 'datetime',
         ];
     }
 
-    public function stickers()
+    public function stickers(): HasMany
     {
         return $this->hasMany(UserSticker::class)->orderBy('sort')->orderBy('id');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function isCommentBanned(): bool
+    {
+        return $this->comment_banned_at !== null;
     }
 }

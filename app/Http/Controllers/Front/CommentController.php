@@ -23,6 +23,13 @@ class CommentController extends Controller
             ], 401);
         }
 
+        $user = auth()->user();
+        if ($user->isCommentBanned()) {
+            return response()->json([
+                'message' => '您已被禁言，暂时无法发表评论'.($user->comment_ban_reason ? '：'.$user->comment_ban_reason : ''),
+            ], 403);
+        }
+
         $request->validate([
             'article_id' => 'required|exists:articles,id',
             'content' => 'required|string|max:2000',

@@ -43,8 +43,9 @@
         </ul>
         @endif
 
-        <p class="mt-8">
-            <a href="{{ url()->previous() === url()->current() ? route('front.home') : url()->previous() }}" class="text-primary-600 hover:text-primary-700 text-sm">← 返回</a>
+        <p class="mt-8 flex flex-wrap gap-4">
+            <a href="{{ route('front.my.profile') }}" class="text-primary-600 hover:text-primary-700 text-sm">← 返回个人中心</a>
+            <a href="{{ route('front.home') }}" class="text-dark-800/50 hover:text-primary-600 text-sm">首页</a>
         </p>
     </div>
 </div>

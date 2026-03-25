@@ -78,6 +78,7 @@ class ArticleController extends Controller
 
         $comments = $article->comments()
             ->where('status', 'approved')
+            ->with('user:id,name,avatar,signature,mood_emoji,mood_text')
             ->orderByDesc('created_at')
             ->get();
 

@@ -47,6 +47,14 @@
                 <h2 class="text-xl font-serif font-semibold text-primary-800 mb-6">评论区 ({{ $comments->count() }})</h2>
 
                 @auth
+                @if(auth()->user()->isCommentBanned())
+                <div class="mb-8 p-6 rounded-xl bg-amber-50/90 border border-amber-200 text-dark-800/80 text-sm">
+                    <p class="font-medium text-amber-900">您已被禁言，暂时无法发表评论。</p>
+                    @if(auth()->user()->comment_ban_reason)
+                    <p class="mt-2 text-amber-800/90">原因：{{ auth()->user()->comment_ban_reason }}</p>
+                    @endif
+                </div>
+                @else
                 <form id="comment-form" class="mb-8" x-data="commentFormState()" x-init="loadMyStickers()" @submit.prevent="submitComment()">
                     @csrf
                     <input type="hidden" name="article_id" value="{{ $article->id }}">
@@ -94,6 +102,7 @@
                     </button>
                     <p id="comment-message" class="mt-2 text-sm hidden"></p>
                 </form>
+                @endif
                 @else
                 <div class="mb-8 p-6 rounded-xl bg-haze-50/80 border border-haze-200 text-center">
                     <p class="text-dark-800/70 mb-4">登录或注册后可参与评论</p>
@@ -108,11 +117,28 @@
                 <div class="space-y-5">
                     @foreach($comments as $comment)
                     <div class="pb-5 border-b border-haze-200 last:border-0">
-                        <div class="flex justify-between mb-2">
-                            <span class="font-medium text-primary-800">{{ $comment->author_name ?: ($comment->user?->name ?? '游客') }}</span>
-                            <span class="text-dark-800/50 text-sm">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
+                        <div class="flex gap-3">
+                            @if($comment->user?->avatar)
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($comment->user->avatar) }}" alt="" class="w-10 h-10 rounded-full object-cover shrink-0 border border-haze-200">
+                            @else
+                            <div class="w-10 h-10 rounded-full bg-haze-200 shrink-0 flex items-center justify-center text-primary-600 text-sm font-medium">{{ mb_substr($comment->author_name ?: ($comment->user?->name ?? '?'), 0, 1) }}</div>
+                            @endif
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap justify-between gap-2 mb-1">
+                                    <div>
+                                        <span class="font-medium text-primary-800">{{ $comment->author_name ?: ($comment->user?->name ?? '游客') }}</span>
+                                        @if($comment->user && ($comment->user->mood_emoji || $comment->user->mood_text))
+                                        <span class="text-dark-800/50 text-sm ml-2">{{ $comment->user->mood_emoji }} @if($comment->user->mood_text)<span class="text-dark-800/60">{{ $comment->user->mood_text }}</span>@endif</span>
+                                        @endif
+                                    </div>
+                                    <span class="text-dark-800/50 text-sm">{{ $comment->created_at->format('Y-m-d H:i') }}</span>
+                                </div>
+                                @if($comment->user?->signature)
+                                <p class="text-xs text-dark-800/45 mb-2">{{ $comment->user->signature }}</p>
+                                @endif
+                                <div class="text-dark-800/80 break-words">{!! $comment->content_html !!}</div>
+                            </div>
                         </div>
-                        <div class="text-dark-800/80 break-words">{!! $comment->content_html !!}</div>
                     </div>
                     @endforeach
                 </div>
@@ -221,7 +247,7 @@ function commentFormState() {
                 if (!res || !res.data) return;
                 var data = res.data;
                 var msg = data.message || '';
-                var fail = !res.ok || /失败|无效|最多|关闭/.test(msg);
+                var fail = !res.ok || /失败|无效|最多|关闭|禁言/.test(msg);
                 msgEl.textContent = msg || (res.ok ? '提交成功' : '提交失败');
                 msgEl.classList.add(fail ? 'text-red-600' : 'text-green-600');
                 if (res.ok && !fail) {
