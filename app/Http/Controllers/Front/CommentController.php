@@ -24,6 +24,11 @@ class CommentController extends Controller
         }
 
         $user = auth()->user();
+        if ($user->isDisabled()) {
+            return response()->json([
+                'message' => '您的账号已被禁用，无法发表评论',
+            ], 403);
+        }
         if ($user->isCommentBanned()) {
             return response()->json([
                 'message' => '您已被禁言，暂时无法发表评论'.($user->comment_ban_reason ? '：'.$user->comment_ban_reason : ''),

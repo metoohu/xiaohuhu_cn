@@ -32,6 +32,7 @@ class User extends Authenticatable
         'occupation',
         'comment_banned_at',
         'comment_ban_reason',
+        'disabled_at',
     ];
 
     /**
@@ -56,6 +57,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'birthday' => 'date',
             'comment_banned_at' => 'datetime',
+            'disabled_at' => 'datetime',
         ];
     }
 
@@ -72,5 +74,10 @@ class User extends Authenticatable
     public function isCommentBanned(): bool
     {
         return $this->comment_banned_at !== null;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->disabled_at !== null;
     }
 }

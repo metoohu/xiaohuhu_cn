@@ -49,10 +49,12 @@ Route::get('news', [NewsController::class, 'index'])->name('front.news.index');
 Route::get('news/{news}', [NewsController::class, 'show'])->name('front.news.show');
 
 // 评论提交（异步）
-Route::post('comments', [CommentController::class, 'store'])->name('front.comments.store');
+Route::post('comments', [CommentController::class, 'store'])
+    ->middleware('front.active')
+    ->name('front.comments.store');
 
 // 登录用户：表情包管理（评论区可选用）
-Route::middleware('auth')->prefix('my')->name('front.my.')->group(function () {
+Route::middleware(['auth', 'front.active'])->prefix('my')->name('front.my.')->group(function () {
     Route::get('profile', [UserProfileController::class, 'edit'])->name('profile');
     Route::put('profile', [UserProfileController::class, 'update'])->name('profile.update');
     Route::get('stickers', [UserStickerController::class, 'index'])->name('stickers');

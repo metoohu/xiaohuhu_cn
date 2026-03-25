@@ -85,23 +85,54 @@
             transform: translateY(-2px);
         }
 
-        /* 侧边栏菜单 3D 效果 */
+        /* 侧边栏菜单（治愈系浅底 + 深字） */
         .admin-sidebar nav a {
             position: relative;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 0.5rem;
+            color: #52606b;
         }
         .admin-sidebar nav a:hover {
-            background: linear-gradient(145deg, #475569 0%, #334155 100%) !important;
-            transform: translateX(4px) translateZ(0);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.65) !important;
+            color: #334155 !important;
+            transform: translateX(3px) translateZ(0);
+            box-shadow: 0 1px 4px rgba(15, 118, 110, 0.06);
         }
-        .admin-sidebar nav a.bg-slate-700,
-        .admin-sidebar nav a[class*="bg-slate-700"] {
-            background: linear-gradient(145deg, #334155 0%, #1e293b 100%) !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.05);
+        .admin-sidebar nav a.nav-active {
+            background: rgba(255, 255, 255, 0.92) !important;
+            color: #0f766e !important;
+            box-shadow: 0 1px 6px rgba(13, 148, 136, 0.12);
             transform: translateX(2px);
+            font-weight: 600;
         }
+
+        /* 菜单排序模式 */
+        body.admin-nav-sort-mode .admin-nav-item {
+            cursor: grab;
+        }
+        body.admin-nav-sort-mode .admin-nav-item:active {
+            cursor: grabbing;
+        }
+        body.admin-nav-sort-mode .admin-nav-item.dragging {
+            opacity: 0.65;
+        }
+        body.admin-nav-sort-mode .admin-sidebar nav a {
+            pointer-events: none;
+            cursor: inherit;
+        }
+        body.admin-nav-sort-mode .admin-sidebar-nav-tools {
+            outline: 2px dashed rgba(251, 191, 36, 0.6);
+            outline-offset: 2px;
+            border-radius: 0.5rem;
+        }
+
+        /* 侧栏底色：治愈系柔和浅色系（低饱和、护眼） */
+        [data-admin-sidebar="mint"] .admin-sidebar { background-color: #e5f4ec; }
+        [data-admin-sidebar="mist"] .admin-sidebar { background-color: #e9f0fa; }
+        [data-admin-sidebar="sage"] .admin-sidebar { background-color: #e8efe6; }
+        [data-admin-sidebar="peach"] .admin-sidebar { background-color: #faf3ed; }
+        [data-admin-sidebar="lilac"] .admin-sidebar { background-color: #f3eef8; }
+        [data-admin-sidebar="cream"] .admin-sidebar { background-color: #f8f5ef; }
 
         /* 主按钮 - 边框与 3D 效果 (深色) */
         .admin-main a.bg-slate-800,
@@ -235,27 +266,37 @@
     </style>
     @stack('styles')
 </head>
-<body class="min-h-screen text-slate-800 admin-body" style="background-color: var(--admin-bg);" data-admin-theme="default" x-data="{ sidebarOpen: true }">
+<body class="min-h-screen text-slate-800 admin-body" style="background-color: var(--admin-bg);" data-admin-theme="default" data-admin-sidebar="mint" x-data="{ sidebarOpen: true }">
     <div class="flex">
-        {{-- 侧边栏 --}}
-        <aside class="admin-sidebar w-64 bg-slate-800 text-slate-200 min-h-screen fixed lg:static transition-transform duration-200 shadow-[4px_0_24px_rgba(0,0,0,0.15)]"
+        {{-- 侧边栏：底色由 $store.adminSidebar 控制；菜单项来自数据库（菜单管理） --}}
+        <aside class="admin-sidebar w-64 text-slate-700 min-h-screen fixed lg:static transition-all duration-200 shadow-[4px_0_28px_rgba(13,148,136,0.07)] flex flex-col z-40"
              :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-            <div class="p-4 border-b border-slate-700 shadow-[inset_0_-1px_0_rgba(0,0,0,0.2)]">
-                <a href="{{ route('admin.dashboard') }}" class="text-xl font-bold block transition opacity-90 hover:opacity-100">{{ \App\Models\Setting::adminName() }}</a>
+            <div class="p-4 border-b border-slate-300/40 shrink-0 bg-white/25">
+                <a href="{{ route('admin.dashboard') }}" class="text-xl font-bold block text-slate-800 transition hover:text-teal-800">{{ \App\Models\Setting::adminName() }}</a>
             </div>
-            <nav class="p-2 space-y-1">
-                <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700' : '' }}">仪表盘</a>
-                <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.users.*') ? 'bg-slate-700' : '' }}">用户管理</a>
-                <a href="{{ route('admin.members.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.members.*') ? 'bg-slate-700' : '' }}">前台会员</a>
-                <a href="{{ route('admin.roles.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.roles.*') ? 'bg-slate-700' : '' }}">角色管理</a>
-                <a href="{{ route('admin.categories.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.categories.*') ? 'bg-slate-700' : '' }}">分类管理</a>
-                <a href="{{ route('admin.articles.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.articles.*') ? 'bg-slate-700' : '' }}">文章管理</a>
-                <a href="{{ route('admin.comments.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.comments.*') ? 'bg-slate-700' : '' }}">评论管理</a>
-                <div class="border-t border-slate-700 my-2"></div>
-                <a href="{{ route('admin.settings.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.settings.*') ? 'bg-slate-700' : '' }}">系统设置</a>
-                <a href="{{ route('admin.logs.operation') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.logs.*') ? 'bg-slate-700' : '' }}">操作日志</a>
-                <a href="{{ route('admin.backups.index') }}" class="block px-3 py-2 rounded hover:bg-slate-700 {{ request()->routeIs('admin.backups.*') ? 'bg-slate-700' : '' }}">备份管理</a>
+            <nav id="admin-sidebar-nav" class="p-2 space-y-1 flex-1 overflow-y-auto min-h-0">
+                @if(isset($adminSidebarMenu) && $adminSidebarMenu->isNotEmpty())
+                    @include('admin.partials.sidebar-nav', ['items' => $adminSidebarMenu, 'depth' => 0])
+                @else
+                    <div class="px-3 py-2 text-xs text-amber-800 bg-amber-50/80 rounded-lg border border-amber-200/60 mb-2">
+                        侧栏菜单未加载。请执行 <code class="bg-white px-1 rounded">php artisan migrate</code> 后刷新。
+                    </div>
+                    <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded {{ request()->routeIs('admin.dashboard') ? 'nav-active' : '' }}">仪表盘</a>
+                @endif
             </nav>
+            <div class="admin-sidebar-nav-tools shrink-0 p-3 border-t border-slate-300/40 bg-white/30 backdrop-blur-sm space-y-3 text-xs">
+                <div>
+                    <p class="text-slate-500 mb-1.5 font-medium">治愈侧栏色</p>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" title="雾薄荷" @click="$store.adminSidebar.set('mint')" :class="$store.adminSidebar.current === 'mint' ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-white scale-110' : ''" class="w-7 h-7 rounded-full border border-slate-300/50 hover:scale-110 transition-transform shadow-sm" style="background:#e5f4ec"></button>
+                        <button type="button" title="雾蓝" @click="$store.adminSidebar.set('mist')" :class="$store.adminSidebar.current === 'mist' ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-white scale-110' : ''" class="w-7 h-7 rounded-full border border-slate-300/50 hover:scale-110 transition-transform shadow-sm" style="background:#e9f0fa"></button>
+                        <button type="button" title="鼠尾草" @click="$store.adminSidebar.set('sage')" :class="$store.adminSidebar.current === 'sage' ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-white scale-110' : ''" class="w-7 h-7 rounded-full border border-slate-300/50 hover:scale-110 transition-transform shadow-sm" style="background:#e8efe6"></button>
+                        <button type="button" title="蜜桃燕麦" @click="$store.adminSidebar.set('peach')" :class="$store.adminSidebar.current === 'peach' ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-white scale-110' : ''" class="w-7 h-7 rounded-full border border-slate-300/50 hover:scale-110 transition-transform shadow-sm" style="background:#faf3ed"></button>
+                        <button type="button" title="薰衣草雾" @click="$store.adminSidebar.set('lilac')" :class="$store.adminSidebar.current === 'lilac' ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-white scale-110' : ''" class="w-7 h-7 rounded-full border border-slate-300/50 hover:scale-110 transition-transform shadow-sm" style="background:#f3eef8"></button>
+                        <button type="button" title="奶油米" @click="$store.adminSidebar.set('cream')" :class="$store.adminSidebar.current === 'cream' ? 'ring-2 ring-teal-500 ring-offset-2 ring-offset-white scale-110' : ''" class="w-7 h-7 rounded-full border border-slate-300/50 hover:scale-110 transition-transform shadow-sm" style="background:#f8f5ef"></button>
+                    </div>
+                </div>
+            </div>
         </aside>
 
         <div class="flex-1 flex flex-col min-w-0">
@@ -340,6 +381,30 @@
                 }
             });
             document.body.setAttribute('data-admin-theme', saved);
+
+            var sidebarKeys = { mint: 1, mist: 1, sage: 1, peach: 1, lilac: 1, cream: 1 };
+            var sidebarLegacy = { slate: 'mist', indigo: 'lilac', emerald: 'mint', rose: 'peach', zinc: 'cream', blue: 'mist' };
+            var savedSidebar = localStorage.getItem('admin-sidebar') || 'mint';
+            if (sidebarLegacy[savedSidebar]) {
+                savedSidebar = sidebarLegacy[savedSidebar];
+                localStorage.setItem('admin-sidebar', savedSidebar);
+            }
+            if (!sidebarKeys[savedSidebar]) {
+                savedSidebar = 'mint';
+                localStorage.setItem('admin-sidebar', savedSidebar);
+            }
+            Alpine.store('adminSidebar', {
+                current: savedSidebar,
+                set(key) {
+                    if (!sidebarKeys[key]) {
+                        key = 'mint';
+                    }
+                    this.current = key;
+                    document.body.setAttribute('data-admin-sidebar', key);
+                    localStorage.setItem('admin-sidebar', key);
+                },
+            });
+            document.body.setAttribute('data-admin-sidebar', savedSidebar);
         });
     </script>
     @stack('scripts')

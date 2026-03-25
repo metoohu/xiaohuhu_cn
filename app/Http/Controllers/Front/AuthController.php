@@ -92,6 +92,14 @@ class AuthController extends Controller
             return back()->withErrors(['email' => '邮箱或密码错误'])->withInput($request->only('email'));
         }
 
+        /** @var User $user */
+        $user = Auth::guard('web')->user();
+        if ($user->isDisabled()) {
+            Auth::guard('web')->logout();
+
+            return back()->withErrors(['email' => '该账号已被禁用，如有疑问请联系管理员'])->withInput($request->only('email'));
+        }
+
         $request->session()->regenerate();
 
         $returnUrl = $request->input('return_url');

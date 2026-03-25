@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Admin\AdminMenuItem;
 use App\Models\Category;
 use App\Support\ExtensionMimeTypeGuesser;
 use Illuminate\Filesystem\LocalFilesystemAdapter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
@@ -33,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::useTailwind();
+
         // 當 fileinfo 擴展不可用時，註冊基於副檔名的 MIME 猜測器，避免上傳封面圖等報錯
         if (!extension_loaded('fileinfo')) {
             $mimeTypes = new MimeTypes();
@@ -74,6 +78,14 @@ class AppServiceProvider extends ServiceProvider
                     ->shouldServeSignedUrls($config['serve'] ?? false, fn () => $app['url']);
             });
         }
+
+        View::composer('admin.layouts.master', function ($view) {
+            try {
+                $view->with('adminSidebarMenu', AdminMenuItem::sidebarTree());
+            } catch (\Throwable) {
+                $view->with('adminSidebarMenu', collect());
+            }
+        });
 
         View::composer('front.layouts.master', function ($view) {
             $view->with('navCategories', Category::enabled()

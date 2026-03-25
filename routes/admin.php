@@ -30,8 +30,10 @@ Route::middleware(['admin.auth'])->group(function () {
         Route::get('logs', [\App\Http\Controllers\Admin\ProfileController::class, 'loginLogs'])->name('logs');
     });
 
-    // 前台注册会员（禁言、资料查看）
+    // 前台注册会员（仅禁言管理、资料查看；批量路由须先于 {user}）
     Route::get('members', [\App\Http\Controllers\Admin\MemberController::class, 'index'])->name('members.index');
+    Route::post('members/batch-mute', [\App\Http\Controllers\Admin\MemberController::class, 'batchMute'])->name('members.batch-mute');
+    Route::post('members/batch-unmute', [\App\Http\Controllers\Admin\MemberController::class, 'batchUnmute'])->name('members.batch-unmute');
     Route::get('members/{user}', [\App\Http\Controllers\Admin\MemberController::class, 'show'])->name('members.show');
     Route::post('members/{user}/mute', [\App\Http\Controllers\Admin\MemberController::class, 'mute'])->name('members.mute');
     Route::post('members/{user}/unmute', [\App\Http\Controllers\Admin\MemberController::class, 'unmute'])->name('members.unmute');
@@ -80,4 +82,9 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::post('backups', [\App\Http\Controllers\Admin\BackupController::class, 'store'])->name('backups.store');
     Route::delete('backups/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('backups.destroy');
     Route::get('backups/{filename}/download', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('backups.download');
+
+    // 左侧菜单管理（resource 放末尾，新建/编辑时下拉可列出全部 admin.* 路由名）
+    Route::post('menu-items/{admin_menu_item}/move-up', [\App\Http\Controllers\Admin\AdminMenuItemController::class, 'moveUp'])->name('menu-items.move-up');
+    Route::post('menu-items/{admin_menu_item}/move-down', [\App\Http\Controllers\Admin\AdminMenuItemController::class, 'moveDown'])->name('menu-items.move-down');
+    Route::resource('menu-items', \App\Http\Controllers\Admin\AdminMenuItemController::class)->parameters(['menu-items' => 'admin_menu_item'])->except(['show']);
 });
