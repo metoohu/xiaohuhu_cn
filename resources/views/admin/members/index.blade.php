@@ -11,7 +11,7 @@
         <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-5 lg:gap-y-2">
             {{-- 筛选：单行等高，无顶栏标签 --}}
             <form method="GET" class="flex flex-wrap items-center gap-2">
-                <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="关键词：昵称或邮箱" aria-label="关键词（昵称或邮箱）" class="h-9 min-w-[10rem] flex-1 rounded-md border border-slate-300 px-3 text-sm sm:max-w-[14rem] sm:flex-none">
+                <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="关键词：昵称或邮箱" aria-label="关键词（昵称或邮箱）" class="h-9 w-52 max-w-full shrink-0 rounded-md border border-slate-300 px-3 text-sm sm:w-60">
                 <select name="banned" aria-label="评论状态" class="h-9 rounded-md border border-slate-300 bg-white px-2 text-sm">
                     <option value="">全部状态</option>
                     <option value="1" @selected(request('banned') === '1')>已禁言</option>
