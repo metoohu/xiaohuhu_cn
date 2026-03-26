@@ -5,45 +5,41 @@
 @section('content')
 <div class="bg-white rounded-lg shadow p-4">
     <h2 class="text-xl font-bold mb-4">前台注册会员</h2>
-    <p class="text-sm text-slate-500 mb-4">管理网站注册用户的<strong>评论禁言</strong>：禁言后仍可登录，但不可发表评论。下方同一行可搜索、批量禁言或<strong>批量解除禁言</strong>（先勾选表格左侧复选框）。「用户管理」为后台管理员账号。</p>
+    <p class="text-sm text-slate-500 mb-4">管理网站注册用户的<strong>评论禁言</strong>：禁言后仍可登录，但不可发表评论。下方可筛选、批量禁言或<strong>批量解除禁言</strong>（先勾选表格左侧复选框）。「用户管理」为后台管理员账号。</p>
 
-    <div class="mb-4 flex flex-wrap items-end gap-x-4 gap-y-3 p-3 rounded-lg border border-slate-200 bg-slate-50/80">
-        <form method="GET" class="flex flex-wrap items-end gap-2 shrink-0">
-            <div>
-                <label class="block text-xs text-slate-500 mb-1">关键词</label>
-                <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="昵称或邮箱" class="rounded border-slate-300 text-sm min-w-[9rem] w-36">
-            </div>
-            <div>
-                <label class="block text-xs text-slate-500 mb-1">评论状态</label>
-                <select name="banned" class="rounded border-slate-300 text-sm">
-                    <option value="">全部</option>
+    <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50/80 p-3 sm:p-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-5 lg:gap-y-2">
+            {{-- 筛选：单行等高，无顶栏标签 --}}
+            <form method="GET" class="flex flex-wrap items-center gap-2">
+                <input type="text" name="keyword" value="{{ request('keyword') }}" placeholder="关键词：昵称或邮箱" aria-label="关键词（昵称或邮箱）" class="h-9 min-w-[10rem] flex-1 rounded-md border border-slate-300 px-3 text-sm sm:max-w-[14rem] sm:flex-none">
+                <select name="banned" aria-label="评论状态" class="h-9 rounded-md border border-slate-300 bg-white px-2 text-sm">
+                    <option value="">全部状态</option>
                     <option value="1" @selected(request('banned') === '1')>已禁言</option>
                     <option value="0" @selected(request('banned') === '0')>未禁言</option>
                 </select>
-            </div>
-            <button type="submit" class="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 text-sm h-[34px] self-end">搜索</button>
-        </form>
+                <button type="submit" class="h-9 shrink-0 rounded-md bg-slate-200 px-4 text-sm font-medium hover:bg-slate-300">搜索</button>
+            </form>
 
-        @if($members->total() > 0)
-        <div class="hidden sm:block w-px h-9 bg-slate-200 self-end mb-0.5 shrink-0" aria-hidden="true"></div>
+            @if($members->total() > 0)
+            <div class="hidden lg:block h-8 w-px shrink-0 bg-slate-200" aria-hidden="true"></div>
 
-        <div class="flex flex-wrap items-end gap-x-3 gap-y-2 flex-1 min-w-0">
-            <span class="text-xs text-slate-600 whitespace-nowrap self-end pb-2">已选 <strong id="member-selected-count" class="text-slate-900">0</strong></span>
-            <form id="form-batch-mute" action="{{ route('admin.members.batch-mute') }}" method="POST" class="flex flex-wrap items-end gap-2" onsubmit="return memberBatchPrepareSubmit(this, 'mute');">
-                @csrf
-                <div class="min-w-0">
-                    <label class="block text-xs text-slate-500 mb-1">批量禁言</label>
-                    <input type="text" name="comment_ban_reason" maxlength="500" placeholder="原因（选填，统一写入）" class="rounded border-slate-300 text-sm w-48 max-w-[min(100vw-2rem,12rem)] sm:max-w-none sm:w-52 h-[34px] px-2">
+            {{-- 批量：两按钮紧邻；原因输入与按钮组同排，不因 flex-1 把两表单扯开 --}}
+            <div class="flex flex-col gap-2 border-t border-slate-200 pt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2 sm:border-t-0 sm:pt-0 lg:flex-1 lg:min-w-0">
+                <span class="text-sm text-slate-600 whitespace-nowrap sm:shrink-0">已选 <strong id="member-selected-count" class="tabular-nums text-slate-900">0</strong></span>
+                <div class="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    <form id="form-batch-mute" action="{{ route('admin.members.batch-mute') }}" method="POST" class="flex items-center gap-2" onsubmit="return memberBatchPrepareSubmit(this, 'mute');">
+                        @csrf
+                        <input type="text" name="comment_ban_reason" maxlength="500" placeholder="批量禁言原因（选填，统一写入）" aria-label="批量禁言原因" class="h-9 w-48 max-w-full rounded-md border border-slate-300 px-3 text-sm sm:w-56">
+                        <button type="submit" class="h-9 shrink-0 rounded-md bg-red-600 px-3 text-sm font-medium text-white hover:bg-red-700">批量禁言</button>
+                    </form>
+                    <form id="form-batch-unmute" action="{{ route('admin.members.batch-unmute') }}" method="POST" class="flex shrink-0 items-center" onsubmit="return memberBatchPrepareSubmit(this, 'unmute');">
+                        @csrf
+                        <button type="submit" class="h-9 rounded-md bg-green-600 px-3 text-sm font-medium text-white hover:bg-green-700 whitespace-nowrap">批量解除禁言</button>
+                    </form>
                 </div>
-                <button type="submit" class="px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 h-[34px]">批量禁言</button>
-            </form>
-            <form id="form-batch-unmute" action="{{ route('admin.members.batch-unmute') }}" method="POST" class="flex flex-col justify-end" onsubmit="return memberBatchPrepareSubmit(this, 'unmute');">
-                @csrf
-                <span class="block text-xs text-slate-500 mb-1 h-4 leading-4">解除禁言</span>
-                <button type="submit" class="px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 h-[34px] whitespace-nowrap">批量解除禁言</button>
-            </form>
+            </div>
+            @endif
         </div>
-        @endif
     </div>
 
     <div class="overflow-x-auto">
