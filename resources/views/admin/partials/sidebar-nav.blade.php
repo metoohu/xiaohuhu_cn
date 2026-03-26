@@ -1,24 +1,31 @@
+@php
+    $depthVal = $depth ?? 0;
+@endphp
+<ul class="@if($depthVal > 0) admin-sidebar-nested mt-0.5 space-y-0.5 @else admin-sidebar-root space-y-0.5 @endif" role="list">
 @foreach($items as $item)
     @if($item->is_divider)
-        <div class="admin-nav-item" data-nav-id="div-{{ $item->id }}" draggable="false" aria-hidden="true">
-            <div class="border-t border-slate-300/45 my-2"></div>
-        </div>
+        <li class="admin-nav-item list-none" role="separator" data-nav-id="div-{{ $item->id }}" aria-hidden="true">
+            <div class="admin-nav-hr mx-2 my-2 border-0 border-t"></div>
+        </li>
     @else
         @php
             $href = $item->resolveHref();
             $active = $item->isRouteActive();
-            $depthVal = $depth ?? 0;
             $pl = 0.75 + $depthVal * 0.75;
         @endphp
-        <div class="admin-nav-item" data-nav-id="m-{{ $item->id }}" draggable="false">
+        <li class="admin-nav-item list-none" data-nav-id="m-{{ $item->id }}">
             @if($href)
-                <a href="{{ $href }}" class="block px-3 py-2 rounded {{ $active ? 'nav-active' : '' }}" style="padding-left: {{ $pl }}rem">{{ $item->title }}</a>
+                <a href="{{ $href }}"
+                   class="admin-sidebar-link block rounded-md text-[0.9375rem] leading-snug transition-[background-color,color,box-shadow] duration-200 ease-out {{ $active ? 'nav-active' : '' }}"
+                   style="padding: 0.5rem 0.75rem 0.5rem {{ $pl }}rem"
+                   @if($active) aria-current="page" @endif>{{ $item->title }}</a>
             @elseif($item->title !== '')
-                <span class="block px-3 py-2 text-xs font-medium text-slate-500" style="padding-left: {{ $pl }}rem">{{ $item->title }}</span>
+                <span class="admin-sidebar-group block px-3 py-1.5 text-[0.6875rem] font-semibold uppercase tracking-wider" style="padding-left: {{ $pl }}rem">{{ $item->title }}</span>
             @endif
             @if($item->children->isNotEmpty())
                 @include('admin.partials.sidebar-nav', ['items' => $item->children, 'depth' => $depthVal + 1])
             @endif
-        </div>
+        </li>
     @endif
 @endforeach
+</ul>
