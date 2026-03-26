@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-admin-theme="t-f1f5" data-admin-sidebar="sb-f8fc">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -112,6 +112,9 @@
         }
 
         /* 侧栏：简约层级 + HTML5 焦点环（:focus-visible） */
+        .admin-sidebar a.admin-sidebar-link {
+            text-decoration: none;
+        }
         .admin-sidebar-link {
             position: relative;
             color: var(--admin-c-neutral);
@@ -157,9 +160,27 @@
         [data-admin-sidebar="sb-0f172a"] { --admin-sb-bg: #0F172A; --admin-sb-scheme: dark; }
         [data-admin-sidebar="sb-121212"] { --admin-sb-bg: #121212; --admin-sb-scheme: dark; }
 
+        /* 变量挂在 html 上，避免部分浏览器在 body 子节点解析 var() 异常；侧栏强制纯色底 */
         .admin-sidebar {
-            background-color: var(--admin-sb-bg, var(--admin-c-ivory));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            isolation: isolate;
+            background-color: var(--admin-sb-bg, #F8FAFC);
             border-right: 1px solid var(--admin-sb-border, var(--admin-c-pale-border));
+        }
+        html[data-admin-sidebar="sb-475569"] .admin-sidebar,
+        html[data-admin-sidebar="sb-1e293b"] .admin-sidebar,
+        html[data-admin-sidebar="sb-334155"] .admin-sidebar,
+        html[data-admin-sidebar="sb-384b62"] .admin-sidebar,
+        html[data-admin-sidebar="sb-27272a"] .admin-sidebar,
+        html[data-admin-sidebar="sb-0f172a"] .admin-sidebar,
+        html[data-admin-sidebar="sb-121212"] .admin-sidebar {
+            color-scheme: dark;
+        }
+        html[data-admin-sidebar="sb-f8fc"] .admin-sidebar,
+        html[data-admin-sidebar="sb-f1f5"] .admin-sidebar,
+        html[data-admin-sidebar="sb-e2e8"] .admin-sidebar {
+            color-scheme: light;
         }
         [data-admin-sidebar="sb-f8fc"] .admin-sidebar,
         [data-admin-sidebar="sb-f1f5"] .admin-sidebar,
@@ -320,7 +341,8 @@
 
         .admin-sidebar-footer {
             border-top: 1px solid var(--admin-c-pale-border);
-            background: rgba(248, 250, 252, 0.75);
+            background: rgba(248, 250, 252, 0.92);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
         }
         [data-admin-sidebar="sb-f1f5"] .admin-sidebar-footer {
@@ -338,7 +360,34 @@
         [data-admin-sidebar="sb-121212"] .admin-sidebar-footer {
             border-top-color: rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.22);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
+        }
+        @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+            .admin-sidebar-footer {
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+            }
+            [data-admin-sidebar="sb-f8fc"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-f1f5"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-e2e8"] .admin-sidebar-footer {
+                background: var(--admin-c-ivory);
+            }
+            [data-admin-sidebar="sb-f1f5"] .admin-sidebar-footer {
+                background: var(--admin-c-pale);
+            }
+            [data-admin-sidebar="sb-e2e8"] .admin-sidebar-footer {
+                background: var(--admin-c-pale-border);
+            }
+            [data-admin-sidebar="sb-475569"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-1e293b"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-334155"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-384b62"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-27272a"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-0f172a"] .admin-sidebar-footer,
+            [data-admin-sidebar="sb-121212"] .admin-sidebar-footer {
+                background: rgba(0, 0, 0, 0.35);
+            }
         }
         .admin-sidebar-palette-label {
             color: #64748b;
@@ -366,10 +415,56 @@
         .admin-swatch-ring-dark {
             box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.5), 0 0 0 4px rgba(248, 250, 252, 0.9);
         }
+        /* 不依赖 Tailwind 的 grid 工具类，避免构建未扫描到导致 Chrome 下竖排异常 */
+        .admin-sidebar-swatch-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .admin-sidebar-swatch-grid .admin-swatch-btn {
+            display: block;
+            box-sizing: border-box;
+            width: 2rem;
+            height: 2rem;
+            min-width: 2rem;
+            min-height: 2rem;
+            padding: 0;
+            margin: 0 auto;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .admin-sidebar-swatch-grid .admin-swatch-btn:hover {
+            transform: scale(1.05);
+        }
+        .admin-sidebar-swatch-grid .admin-swatch-btn:active {
+            transform: scale(0.96);
+        }
+        .admin-swatch-b-light {
+            border: 1px solid rgba(148, 163, 184, 0.7);
+        }
+        .admin-swatch-b-mid {
+            border: 1px solid rgba(100, 116, 139, 0.55);
+        }
+        .admin-swatch-b-on-dark {
+            border: 1px solid rgba(0, 0, 0, 0.28);
+        }
+        .admin-swatch-b-on-charcoal {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
 
         @media (prefers-reduced-motion: reduce) {
             .admin-sidebar, .admin-sidebar-link, .admin-sidebar * {
                 transition-duration: 0.01ms !important;
+            }
+            .admin-sidebar-swatch-grid .admin-swatch-btn:hover,
+            .admin-sidebar-swatch-grid .admin-swatch-btn:active {
+                transform: none;
             }
         }
 
@@ -525,7 +620,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="min-h-screen text-slate-800 admin-body" style="background-color: var(--admin-bg);" data-admin-theme="t-f1f5" data-admin-sidebar="sb-f8fc" x-data="{ sidebarOpen: true }">
+<body class="min-h-screen text-slate-800 admin-body" style="background-color: var(--admin-bg);" x-data="{ sidebarOpen: true }">
     <div class="flex">
         {{-- 侧栏：语义化 nav + 列表；配色来自色板与 $store.adminSidebar --}}
         <aside class="admin-sidebar w-64 min-h-screen fixed lg:static flex flex-col z-40 transition-transform duration-200 ease-out shadow-[4px_0_32px_rgba(15,23,42,0.06)]"
@@ -549,17 +644,17 @@
             </nav>
             <footer class="admin-sidebar-footer admin-sidebar-nav-tools shrink-0 space-y-2.5 p-3 text-[11px] leading-tight">
                 <p class="admin-sidebar-palette-label mb-0 font-semibold tracking-wide">侧栏 · 10 色</p>
-                <div class="grid grid-cols-5 gap-2" role="group" aria-label="侧栏底色十选一">
-                    <button type="button" title="象牙白 #F8FAFC" @click="$store.adminSidebar.set('sb-f8fc')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-slate-300/65 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-f8fc' ? 'admin-swatch-ring-light' : '']" style="background:#F8FAFC"></button>
-                    <button type="button" title="浅灰 #F1F5F9" @click="$store.adminSidebar.set('sb-f1f5')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-slate-300/65 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-f1f5' ? 'admin-swatch-ring-light' : '']" style="background:#F1F5F9"></button>
-                    <button type="button" title="淡青灰 #E2E8F0" @click="$store.adminSidebar.set('sb-e2e8')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-slate-400/50 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-e2e8' ? 'admin-swatch-ring-light' : '']" style="background:#E2E8F0"></button>
-                    <button type="button" title="雾感蓝灰 #475569" @click="$store.adminSidebar.set('sb-475569')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-black/15 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-475569' ? 'admin-swatch-ring-dark' : '']" style="background:#475569"></button>
-                    <button type="button" title="深空灰 #1E293B" @click="$store.adminSidebar.set('sb-1e293b')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-black/20 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-1e293b' ? 'admin-swatch-ring-dark' : '']" style="background:#1E293B"></button>
-                    <button type="button" title="中性深灰 #334155" @click="$store.adminSidebar.set('sb-334155')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-black/20 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-334155' ? 'admin-swatch-ring-dark' : '']" style="background:#334155"></button>
-                    <button type="button" title="雾霾蓝 #384B62" @click="$store.adminSidebar.set('sb-384b62')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-black/15 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-384b62' ? 'admin-swatch-ring-dark' : '']" style="background:#384B62"></button>
-                    <button type="button" title="石墨灰 #27272A" @click="$store.adminSidebar.set('sb-27272a')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-white/12 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-27272a' ? 'admin-swatch-ring-dark' : '']" style="background:#27272A"></button>
-                    <button type="button" title="静谧蓝 #0F172A" @click="$store.adminSidebar.set('sb-0f172a')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-white/10 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-0f172a' ? 'admin-swatch-ring-dark' : '']" style="background:#0F172A"></button>
-                    <button type="button" title="炭黑 #121212" @click="$store.adminSidebar.set('sb-121212')" :class="['admin-swatch-btn mx-auto h-8 w-8 shrink-0 rounded-md border border-white/10 transition-transform hover:scale-105 active:scale-95', $store.adminSidebar.current === 'sb-121212' ? 'admin-swatch-ring-dark' : '']" style="background:#121212"></button>
+                <div class="admin-sidebar-swatch-grid" role="group" aria-label="侧栏底色十选一">
+                    <button type="button" title="象牙白 #F8FAFC" @click="$store.adminSidebar.set('sb-f8fc')" :class="['admin-swatch-btn admin-swatch-b-light', $store.adminSidebar.current === 'sb-f8fc' ? 'admin-swatch-ring-light' : '']" style="background:#F8FAFC"></button>
+                    <button type="button" title="浅灰 #F1F5F9" @click="$store.adminSidebar.set('sb-f1f5')" :class="['admin-swatch-btn admin-swatch-b-light', $store.adminSidebar.current === 'sb-f1f5' ? 'admin-swatch-ring-light' : '']" style="background:#F1F5F9"></button>
+                    <button type="button" title="淡青灰 #E2E8F0" @click="$store.adminSidebar.set('sb-e2e8')" :class="['admin-swatch-btn admin-swatch-b-mid', $store.adminSidebar.current === 'sb-e2e8' ? 'admin-swatch-ring-light' : '']" style="background:#E2E8F0"></button>
+                    <button type="button" title="雾感蓝灰 #475569" @click="$store.adminSidebar.set('sb-475569')" :class="['admin-swatch-btn admin-swatch-b-on-dark', $store.adminSidebar.current === 'sb-475569' ? 'admin-swatch-ring-dark' : '']" style="background:#475569"></button>
+                    <button type="button" title="深空灰 #1E293B" @click="$store.adminSidebar.set('sb-1e293b')" :class="['admin-swatch-btn admin-swatch-b-on-dark', $store.adminSidebar.current === 'sb-1e293b' ? 'admin-swatch-ring-dark' : '']" style="background:#1E293B"></button>
+                    <button type="button" title="中性深灰 #334155" @click="$store.adminSidebar.set('sb-334155')" :class="['admin-swatch-btn admin-swatch-b-on-dark', $store.adminSidebar.current === 'sb-334155' ? 'admin-swatch-ring-dark' : '']" style="background:#334155"></button>
+                    <button type="button" title="雾霾蓝 #384B62" @click="$store.adminSidebar.set('sb-384b62')" :class="['admin-swatch-btn admin-swatch-b-on-dark', $store.adminSidebar.current === 'sb-384b62' ? 'admin-swatch-ring-dark' : '']" style="background:#384B62"></button>
+                    <button type="button" title="石墨灰 #27272A" @click="$store.adminSidebar.set('sb-27272a')" :class="['admin-swatch-btn admin-swatch-b-on-charcoal', $store.adminSidebar.current === 'sb-27272a' ? 'admin-swatch-ring-dark' : '']" style="background:#27272A"></button>
+                    <button type="button" title="静谧蓝 #0F172A" @click="$store.adminSidebar.set('sb-0f172a')" :class="['admin-swatch-btn admin-swatch-b-on-charcoal', $store.adminSidebar.current === 'sb-0f172a' ? 'admin-swatch-ring-dark' : '']" style="background:#0F172A"></button>
+                    <button type="button" title="炭黑 #121212" @click="$store.adminSidebar.set('sb-121212')" :class="['admin-swatch-btn admin-swatch-b-on-charcoal', $store.adminSidebar.current === 'sb-121212' ? 'admin-swatch-ring-dark' : '']" style="background:#121212"></button>
                 </div>
             </footer>
         </aside>
@@ -678,11 +773,11 @@
                 set(theme) {
                     if (!themeKeys[theme]) theme = 't-f1f5';
                     this.current = theme;
-                    document.body.setAttribute('data-admin-theme', theme);
+                    document.documentElement.setAttribute('data-admin-theme', theme);
                     localStorage.setItem('admin-theme', theme);
                 }
             });
-            document.body.setAttribute('data-admin-theme', savedTheme);
+            document.documentElement.setAttribute('data-admin-theme', savedTheme);
 
             var sidebarKeys = {
                 'sb-f8fc': 1, 'sb-f1f5': 1, 'sb-e2e8': 1, 'sb-475569': 1, 'sb-1e293b': 1,
@@ -708,11 +803,11 @@
                 set(key) {
                     if (!sidebarKeys[key]) key = 'sb-f8fc';
                     this.current = key;
-                    document.body.setAttribute('data-admin-sidebar', key);
+                    document.documentElement.setAttribute('data-admin-sidebar', key);
                     localStorage.setItem('admin-sidebar', key);
                 },
             });
-            document.body.setAttribute('data-admin-sidebar', savedSidebar);
+            document.documentElement.setAttribute('data-admin-sidebar', savedSidebar);
         });
     </script>
     @stack('scripts')
