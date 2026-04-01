@@ -28,4 +28,5 @@ alwaysApply: false
 ## 界面与主题
 
 - `data-admin-theme`、`data-admin-sidebar` 在 **`<html>`**；侧栏十色块等关键样式用 **内联 `<style>` 中的纯 CSS 类**，避免依赖未编译的 Tailwind 任意类（详见 skill `admin-theme-layout`）。
-- 列表页表格「操作」列：用 `master` 中定义的 **`.admin-table-actions` 容器** + **`.admin-btn-action` 与修饰类**（`--primary` / `--danger` / `--success` / `--neutral` / `--teal` / `--amber`），保持全后台操作按钮样式一致。
+- 列表页表格「操作」列：用 `master` 中定义的 **`.admin-table-actions` 容器** + **`.admin-btn-action` 与修饰类**（`--primary` / `--danger` / `--success` / `--neutral` / `--teal` / `--amber`），保持全后台操作按钮样式一致（内联 CSS，Chrome / WebKit 下已对 `button` 使用 `appearance: none` 等处理）。
+- 列表页上方主按钮、批量操作：可用 **`.admin-toolbar-btn`** 及 **`--dark` / `--green` / `--slate` / `--blue` / `--red`**；状态筛选 Tab 可用 **`.admin-filter-tabs`** + **`is-active`**（及 `is-active-green` / `is-active-slate`）。

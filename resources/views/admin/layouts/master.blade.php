@@ -568,7 +568,7 @@
             border-color: #94a3b8 !important;
         }
 
-        /* 列表页表格：行操作区与按钮（纯 CSS，不依赖 Tailwind 任意类） */
+        /* 列表页表格：行操作区与按钮（纯 CSS；兼容 Chrome / WebKit 默认 button 样式） */
         .admin-main table .admin-table-actions {
             display: flex;
             flex-wrap: wrap;
@@ -576,8 +576,11 @@
             gap: 0.375rem;
         }
         .admin-main table .admin-table-actions form {
-            display: inline;
+            display: inline-flex;
             margin: 0;
+            padding: 0;
+            vertical-align: middle;
+            align-items: center;
         }
         .admin-main table .admin-btn-action {
             display: inline-flex;
@@ -593,10 +596,26 @@
             border: 1px solid transparent;
             text-decoration: none;
             cursor: pointer;
-            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+            vertical-align: middle;
+            flex-shrink: 0;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, -webkit-transform 0.12s ease, transform 0.12s ease;
         }
         .admin-main table button.admin-btn-action {
             font-family: inherit;
+            margin: 0;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .admin-main table .admin-btn-action:focus {
+            outline: none;
+        }
+        .admin-main table .admin-btn-action:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        .admin-main table .admin-btn-action--danger:focus-visible {
+            outline-color: #dc2626;
         }
         .admin-main table .admin-btn-action--neutral {
             border-color: #e2e8f0;
@@ -615,6 +634,7 @@
         .admin-main table .admin-btn-action--primary:hover {
             background: #dbeafe;
             border-color: #93c5fd;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
         }
         .admin-main table .admin-btn-action--teal {
             border-color: #99f6e4;
@@ -642,6 +662,7 @@
         .admin-main table .admin-btn-action--danger:hover {
             background: #fee2e2;
             border-color: #f87171;
+            box-shadow: 0 1px 2px rgba(127, 29, 29, 0.08);
         }
         .admin-main table .admin-btn-action--amber {
             border-color: #fde68a;
@@ -653,12 +674,145 @@
             border-color: #fcd34d;
         }
         .admin-main table .admin-btn-action:active {
+            -webkit-transform: scale(0.98);
             transform: scale(0.98);
         }
         @media (prefers-reduced-motion: reduce) {
             .admin-main table .admin-btn-action:active {
+                -webkit-transform: none;
                 transform: none;
             }
+        }
+
+        /* 列表页工具栏按钮（表格外：筛选 Tab、批量操作等，不依赖 Tailwind） */
+        .admin-main .admin-toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4375rem 0.75rem;
+            min-height: 2.25rem;
+            box-sizing: border-box;
+            border-radius: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            line-height: 1.25;
+            border: 1px solid transparent;
+            text-decoration: none;
+            cursor: pointer;
+            margin: 0;
+            vertical-align: middle;
+            -webkit-font-smoothing: antialiased;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, -webkit-transform 0.12s ease, transform 0.12s ease;
+        }
+        .admin-main .admin-toolbar-btn:focus {
+            outline: none;
+        }
+        .admin-main .admin-toolbar-btn:focus-visible {
+            outline: 2px solid #64748b;
+            outline-offset: 2px;
+        }
+        .admin-main .admin-toolbar-btn--dark {
+            background: #1e293b;
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+        }
+        .admin-main .admin-toolbar-btn--dark:hover {
+            background: #334155;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+        }
+        .admin-main .admin-toolbar-btn--dark:active {
+            -webkit-transform: translateY(1px);
+            transform: translateY(1px);
+        }
+        .admin-main .admin-toolbar-btn--green {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+        .admin-main .admin-toolbar-btn--green:hover {
+            background: #dcfce7;
+            border-color: #86efac;
+            box-shadow: 0 1px 3px rgba(22, 101, 52, 0.12);
+        }
+        .admin-main .admin-toolbar-btn--slate {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+        .admin-main .admin-toolbar-btn--slate:hover {
+            background: #e2e8f0;
+            box-shadow: 0 1px 3px rgba(51, 65, 85, 0.08);
+        }
+        .admin-main .admin-toolbar-btn--blue {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+        }
+        .admin-main .admin-toolbar-btn--blue:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            box-shadow: 0 1px 3px rgba(29, 78, 216, 0.12);
+        }
+        .admin-main .admin-toolbar-btn--red {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+        .admin-main .admin-toolbar-btn--red:hover {
+            background: #fee2e2;
+            border-color: #f87171;
+            box-shadow: 0 1px 3px rgba(185, 28, 28, 0.1);
+        }
+        .admin-main .admin-toolbar-btn:active {
+            -webkit-transform: scale(0.99);
+            transform: scale(0.99);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .admin-main .admin-toolbar-btn:active,
+            .admin-main .admin-toolbar-btn--dark:active {
+                -webkit-transform: none;
+                transform: none;
+            }
+        }
+        /* 筛选 Tab 容器（Chrome 下 flex + 圆角统一） */
+        .admin-main .admin-filter-tabs {
+            display: inline-flex;
+            flex-wrap: wrap;
+            padding: 0.25rem;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            gap: 0.125rem;
+        }
+        .admin-main .admin-filter-tabs a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: #475569;
+            transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .admin-main .admin-filter-tabs a:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .admin-main .admin-filter-tabs a.is-active {
+            background: #fff;
+            color: #0f172a;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        }
+        .admin-main .admin-filter-tabs a.is-active-green {
+            color: #15803d;
+        }
+        .admin-main .admin-filter-tabs a.is-active-slate {
+            color: #475569;
         }
 
         /* 表格行交互 */
