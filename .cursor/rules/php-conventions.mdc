@@ -1,0 +1,23 @@
+---
+description: PHP 与 Laravel 编码约定（合并原 php-style）
+globs: "**/*.php"
+alwaysApply: false
+---
+
+# PHP / Laravel 编码
+
+## 风格
+
+- 声明参数与返回类型；与项目现有控制器一致（含 `void`）。
+- 优先 `Model::query()->with()->when()->orderBy()->paginate()`；避免在控制器堆叠原生 SQL（除非已有先例）。
+- 验证放在 `FormRequest`；控制器负责授权、事务边界、重定向与响应类型（`View` / `RedirectResponse`）。
+
+## 路由与模型
+
+- `Route::resource` 与 `parameters()` 自定义键名时，方法参数类型提示须与隐式绑定一致（如 `admin_menu_item` → `AdminMenuItem`）。
+- 自定义绑定键写法示例：`categories/{category:id}`。
+
+## 其它
+
+- PSR-4 自动加载，禁止手動 `require` 类文件。
+- 使用 `auth()->guard('admin')` 与默认 `auth()` 时分清场景，避免后台逻辑误用 web guard。

@@ -1,0 +1,29 @@
+---
+description: 路由注册、前缀、中间件与顺序陷阱
+globs: routes/**/*.php,bootstrap/app.php,app/Http/Middleware/**/*.php
+alwaysApply: false
+---
+
+# 路由与中间件
+
+## 注册方式
+
+- 后台：`bootstrap/app.php` → `Route::middleware('web')->prefix('admin')->name('admin.')->group(routes/admin.php)`。
+- 前台：仅 `routes/web.php`；`Route::fallback` 指向 `HomeController::notFound`；JSON 请求 404 返回 `{"message":"页面未找到"}`（同文件异常处理）。
+
+## 中间件别名
+
+- `admin.auth`：后台登录态。
+- `front.active`：前台用户未被禁用（评论提交、`front.my` 分组等）。
+
+## 后台路由顺序（常见坑）
+
+- **具体路径先于通配参数**：例如 `members/batch-mute`、`members/batch-unmute` 必须在 `members/{user}` 之前。
+- **静态/批量与 resource**：`users/batch`、`users/export` 等与 `Route::resource('users')` 并存时，**推荐把自定义路由写在 resource 之前**，避免被 `{user}` 误匹配；合并代码后应用 `route:list` 与浏览器实测导出/批处理。
+- **分类后台绑定**：使用 `{category:id}` 而非 slug，避免空 slug 报错（注释已说明）。
+- **菜单管理**：`menu-items` 的 `resource` 放在 `admin.php` 末尾，便于下拉列出全部 `admin.*` 路由名。
+
+## 命名
+
+- 前台：`front.` 前缀（如 `front.articles.show`）。
+- 后台：`admin.` 前缀（如 `admin.dashboard`）；登录页等为 `admin.login` 等。

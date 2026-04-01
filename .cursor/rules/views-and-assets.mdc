@@ -1,0 +1,22 @@
+---
+description: Blade 视图、Vite/Tailwind 与后台主题实现注意点
+globs: resources/views/**/*.blade.php,resources/css/**/*.css,vite.config.js
+alwaysApply: false
+---
+
+# 视图与前端资源
+
+## Blade
+
+- 后台：`@extends('admin.layouts.master')`，区块 `@section('content')`，脚本 `@push('scripts')` / 样式 `@push('styles')` 与 master 中 `@stack` 对应。
+- 前台：`front.layouts.master`；表单 `@csrf`，方法伪造 `@method`。
+- 闪存消息：`session('success'|'error'|'status')` 在 master 中已统一展示模式时可沿用。
+
+## Vite 与 Tailwind
+
+- `resources/css/app.css` 使用 `@import 'tailwindcss'` 与 `@source` 扫描 `../**/*.blade.php` 等；改路径后需确认构建仍包含对应模板。
+- **后台 master 内关键 UI（侧栏色盘、主题）**：优先内嵌 CSS 类，避免仅依赖任意值 Tailwind（未进 bundle 时在 Chrome 等浏览器表现异常）。
+
+## 静态与上传
+
+- 后台上传路径参考 `config('admin.upload_path')`；链接 `asset()` / `Storage::url()` 与现有模块一致。

@@ -1,0 +1,28 @@
+---
+description: 前台 Front 控制器、路由与会员区
+globs: app/Http/Controllers/Front/**/*.php,resources/views/front/**/*.blade.php,routes/web.php
+alwaysApply: false
+---
+
+# 前台（Front）
+
+## 控制器与路由
+
+- 命名空间：`App\Http\Controllers\Front\*`。
+- 路由定义于 `routes/web.php`，名称统一 **`front.*`**（如 `front.home`、`front.articles.show`）。
+- 分类展示使用 **`{category:slug}`** 路由绑定；勿与后台 `{category:id}` 混淆。
+
+## 主要模块
+
+- 首页、文章列表/详情、分类、搜索、关于、新闻、公司信息页。
+- 评论：`POST comments` → `front.comments.store`，需 `front.active`。
+- 会员区：`Route::prefix('my')->middleware(['auth','front.active'])`，名称 `front.my.*`（资料、表情包上传/删除/JSON 等）。
+
+## 视图
+
+- 布局：`front.layouts.master`（与后台 `admin.layouts.master` 分离）。
+
+## 注意
+
+- `front.active`：禁用用户不可评论、不可进入 `my` 分组；新增需登录的前台接口时评估是否叠加该中间件。
+- 留言板路由 `message` 已重定向首页，勿再恢复为独立功能除非产品要求。

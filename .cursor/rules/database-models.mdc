@@ -1,0 +1,25 @@
+---
+description: 迁移、模型、种子与后台菜单数据
+globs: database/**/*.php,app/Models/**/*.php
+alwaysApply: false
+---
+
+# 数据库与模型
+
+## 迁移
+
+- `php artisan make:migration`；命名清晰；外键、`onDelete` 与现表风格一致。
+- 生产环境以 **可向前迁移** 为主；破坏性变更需数据迁移说明或分步发布。
+
+## 模型位置
+
+- 通用：`app/Models/`（如 `User`、`Article`、`Category`）。
+- 后台专用：`app/Models/Admin/`（如 `AdminUser`、`AdminMenuItem`）。
+
+## AdminMenuItem
+
+- 树形、`parent_id`；`resolveHref()`、`isRouteActive()`、`sidebarTree()` / `managementTree()`；改菜单逻辑时同步检查 `AppServiceProvider` 对 `admin.layouts.master` 的 composer 与 seeder。
+
+## 配置读取
+
+- 后台列表分页等与 `config/admin.php` 对齐；前台与 `config/front.php` 对齐。
