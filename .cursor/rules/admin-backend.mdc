@@ -28,3 +28,4 @@ alwaysApply: false
 ## 界面与主题
 
 - `data-admin-theme`、`data-admin-sidebar` 在 **`<html>`**；侧栏十色块等关键样式用 **内联 `<style>` 中的纯 CSS 类**，避免依赖未编译的 Tailwind 任意类（详见 skill `admin-theme-layout`）。
+- 列表页表格「操作」列：用 `master` 中定义的 **`.admin-table-actions` 容器** + **`.admin-btn-action` 与修饰类**（`--primary` / `--danger` / `--success` / `--neutral` / `--teal` / `--amber`），保持全后台操作按钮样式一致。

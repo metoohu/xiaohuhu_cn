@@ -568,6 +568,99 @@
             border-color: #94a3b8 !important;
         }
 
+        /* 列表页表格：行操作区与按钮（纯 CSS，不依赖 Tailwind 任意类） */
+        .admin-main table .admin-table-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.375rem;
+        }
+        .admin-main table .admin-table-actions form {
+            display: inline;
+            margin: 0;
+        }
+        .admin-main table .admin-btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.375rem 0.625rem;
+            min-height: 2rem;
+            box-sizing: border-box;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1.25;
+            border: 1px solid transparent;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .admin-main table button.admin-btn-action {
+            font-family: inherit;
+        }
+        .admin-main table .admin-btn-action--neutral {
+            border-color: #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+        }
+        .admin-main table .admin-btn-action--neutral:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .admin-main table .admin-btn-action--primary {
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        .admin-main table .admin-btn-action--primary:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
+        .admin-main table .admin-btn-action--teal {
+            border-color: #99f6e4;
+            background: #f0fdfa;
+            color: #0f766e;
+        }
+        .admin-main table .admin-btn-action--teal:hover {
+            background: #ccfbf1;
+            border-color: #5eead4;
+        }
+        .admin-main table .admin-btn-action--success {
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+            color: #15803d;
+        }
+        .admin-main table .admin-btn-action--success:hover {
+            background: #dcfce7;
+            border-color: #86efac;
+        }
+        .admin-main table .admin-btn-action--danger {
+            border-color: #fecaca;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+        .admin-main table .admin-btn-action--danger:hover {
+            background: #fee2e2;
+            border-color: #f87171;
+        }
+        .admin-main table .admin-btn-action--amber {
+            border-color: #fde68a;
+            background: #fffbeb;
+            color: #b45309;
+        }
+        .admin-main table .admin-btn-action--amber:hover {
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+        .admin-main table .admin-btn-action:active {
+            transform: scale(0.98);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .admin-main table .admin-btn-action:active {
+                transform: none;
+            }
+        }
+
         /* 表格行交互 */
         .admin-main table tbody tr {
             transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
@@ -577,18 +670,6 @@
         }
         .admin-main table tbody tr:hover td {
             position: relative;
-        }
-
-        /* 操作链接悬停 */
-        .admin-main table a.text-blue-600,
-        .admin-main table a.text-red-600,
-        .admin-main table button.text-red-600 {
-            transition: color 0.2s ease, opacity 0.2s ease;
-        }
-        .admin-main table a.text-blue-600:hover,
-        .admin-main table a.text-red-600:hover,
-        .admin-main table button.text-red-600:hover {
-            opacity: 0.8;
         }
 
         /* 仪表盘统计卡片 3D */

@@ -69,16 +69,17 @@
                 <td class="py-2">{{ $a->adminUser?->name ?? '-' }}</td>
                 <td class="py-2">{{ $a->created_at->format('Y-m-d H:i') }}</td>
                 <td class="py-2">
-                    @if ($a->status === 'review')
-                    <a href="{{ route('admin.articles.show', $a) }}" class="text-blue-600 hover:underline">人工审核</a>
-                    <span class="text-slate-300 mx-1">|</span>
-                    @endif
-                    <a href="{{ route('admin.articles.edit', $a) }}" class="text-blue-600 hover:underline">编辑</a>
-                    <form action="{{ route('admin.articles.destroy', $a) }}" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline ml-1" onclick="return confirm('确定删除此文章？')">删除</button>
-                    </form>
+                    <div class="admin-table-actions">
+                        @if ($a->status === 'review')
+                        <a href="{{ route('admin.articles.show', $a) }}" class="admin-btn-action admin-btn-action--amber">人工审核</a>
+                        @endif
+                        <a href="{{ route('admin.articles.edit', $a) }}" class="admin-btn-action admin-btn-action--primary">编辑</a>
+                        <form action="{{ route('admin.articles.destroy', $a) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="admin-btn-action admin-btn-action--danger" onclick="return confirm('确定删除此文章？')">删除</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             @endforeach

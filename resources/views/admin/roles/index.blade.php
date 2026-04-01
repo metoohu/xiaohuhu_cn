@@ -26,14 +26,16 @@
                 <td class="py-2">{{ $r->description ?? '-' }}</td>
                 <td class="py-2">{{ $r->users_count ?? 0 }}</td>
                 <td class="py-2">
-                    <a href="{{ route('admin.roles.edit', $r) }}" class="text-blue-600 hover:underline">编辑</a>
-                    @if ($r->name !== 'super_admin')
-                        <form action="{{ route('admin.roles.destroy', $r) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:underline">删除</button>
-                        </form>
-                    @endif
+                    <div class="admin-table-actions">
+                        <a href="{{ route('admin.roles.edit', $r) }}" class="admin-btn-action admin-btn-action--primary">编辑</a>
+                        @if ($r->name !== 'super_admin')
+                            <form action="{{ route('admin.roles.destroy', $r) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="admin-btn-action admin-btn-action--danger">删除</button>
+                            </form>
+                        @endif
+                    </div>
                 </td>
             </tr>
             @endforeach

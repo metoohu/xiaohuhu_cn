@@ -80,17 +80,17 @@
                     </td>
                     <td class="py-2 pr-3 whitespace-nowrap">{{ $m->created_at->format('Y-m-d H:i') }}</td>
                     <td class="py-2">
-                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <a href="{{ route('admin.members.show', $m) }}" class="text-blue-600 hover:underline shrink-0">查看</a>
+                        <div class="admin-table-actions">
+                            <a href="{{ route('admin.members.show', $m) }}" class="admin-btn-action admin-btn-action--primary">查看</a>
                             @if($m->isCommentBanned())
-                            <form action="{{ route('admin.members.unmute', $m) }}" method="POST" class="inline" onsubmit="return confirm('确定解除该用户的禁言？');">
+                            <form action="{{ route('admin.members.unmute', $m) }}" method="POST" onsubmit="return confirm('确定解除该用户的禁言？');">
                                 @csrf
-                                <button type="submit" class="text-green-600 hover:underline text-left">解除禁言</button>
+                                <button type="submit" class="admin-btn-action admin-btn-action--success">解除禁言</button>
                             </form>
                             @else
-                            <form action="{{ route('admin.members.mute', $m) }}" method="POST" class="inline" onsubmit="return confirm('确定禁言该用户？禁言后其无法发表评论。');">
+                            <form action="{{ route('admin.members.mute', $m) }}" method="POST" onsubmit="return confirm('确定禁言该用户？禁言后其无法发表评论。');">
                                 @csrf
-                                <button type="submit" class="text-red-600 hover:underline text-left">禁言</button>
+                                <button type="submit" class="admin-btn-action admin-btn-action--danger">禁言</button>
                             </form>
                             @endif
                         </div>

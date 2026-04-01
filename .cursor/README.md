@@ -4,7 +4,7 @@
 
 | 文件 | 说明 |
 |------|------|
-| `laravel-core.mdc` | **始终应用**：双 guard、路由注册方式、`config/admin` & `front`、简体中文沟通 |
+| `laravel-core.mdc` | **始终应用**：双 guard、路由注册方式、`config/admin` & `front`、**与用户对话使用简体中文**（勿默认繁体） |
 | `routing-middleware.mdc` | `routes/*`、`bootstrap/app.php`、中间件、路由顺序 |
 | `admin-backend.mdc` | 后台控制器、Request、Blade、`admin.php` 模块对照 |
 | `front-office.mdc` | 前台 `Front\*`、`front.*` 路由、`my` 与评论 |

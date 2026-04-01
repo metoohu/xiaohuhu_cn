@@ -71,7 +71,11 @@
                             @endif
                         </td>
                         <td class="py-2">{{ $a->created_at->format('Y-m-d H:i') }}</td>
-                        <td class="py-2"><a href="{{ route('admin.articles.edit', $a) }}" class="text-blue-600 hover:underline">编辑</a></td>
+                        <td class="py-2">
+                            <div class="admin-table-actions">
+                                <a href="{{ route('admin.articles.edit', $a) }}" class="admin-btn-action admin-btn-action--primary">编辑</a>
+                            </div>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>

@@ -28,12 +28,14 @@
                 <td class="py-2">{{ number_format($f['size'] / 1024, 1) }} KB</td>
                 <td class="py-2">{{ date('Y-m-d H:i:s', $f['time']) }}</td>
                 <td class="py-2">
-                    <a href="{{ route('admin.backups.download', $f['name']) }}" class="text-blue-600 hover:underline">下载</a>
-                    <form action="{{ route('admin.backups.destroy', $f['name']) }}" method="POST" class="inline" onsubmit="return confirm('确定删除此备份？')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">删除</button>
-                    </form>
+                    <div class="admin-table-actions">
+                        <a href="{{ route('admin.backups.download', $f['name']) }}" class="admin-btn-action admin-btn-action--primary">下载</a>
+                        <form action="{{ route('admin.backups.destroy', $f['name']) }}" method="POST" onsubmit="return confirm('确定删除此备份？')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="admin-btn-action admin-btn-action--danger">删除</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             @empty

@@ -44,22 +44,24 @@
                 </td>
                 <td class="py-2">{{ $c->created_at->format('Y-m-d H:i') }}</td>
                 <td class="py-2">
-                    <a href="{{ route('admin.comments.edit', $c) }}" class="text-blue-600 hover:underline">编辑</a>
-                    @if ($c->status === 'pending')
-                        <form action="{{ route('admin.comments.approve', $c) }}" method="POST" class="inline">
+                    <div class="admin-table-actions">
+                        <a href="{{ route('admin.comments.edit', $c) }}" class="admin-btn-action admin-btn-action--primary">编辑</a>
+                        @if ($c->status === 'pending')
+                            <form action="{{ route('admin.comments.approve', $c) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="admin-btn-action admin-btn-action--success">通过</button>
+                            </form>
+                            <form action="{{ route('admin.comments.reject', $c) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="admin-btn-action admin-btn-action--danger">拒绝</button>
+                            </form>
+                        @endif
+                        <form action="{{ route('admin.comments.destroy', $c) }}" method="POST">
                             @csrf
-                            <button type="submit" class="text-green-600 hover:underline">通过</button>
+                            @method('DELETE')
+                            <button type="submit" class="admin-btn-action admin-btn-action--danger">删除</button>
                         </form>
-                        <form action="{{ route('admin.comments.reject', $c) }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="text-red-600 hover:underline">拒绝</button>
-                        </form>
-                    @endif
-                    <form action="{{ route('admin.comments.destroy', $c) }}" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">删除</button>
-                    </form>
+                    </div>
                 </td>
             </tr>
             @endforeach

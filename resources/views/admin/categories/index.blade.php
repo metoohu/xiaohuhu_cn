@@ -74,12 +74,14 @@
                 </td>
                 <td class="py-2">{{ $c->articles_count ?? 0 }}</td>
                 <td class="py-2">
-                    <a href="{{ route('admin.categories.edit', ['category' => $c->id]) }}" class="text-blue-600 hover:underline">编辑</a>
-                    <form action="{{ route('admin.categories.destroy', ['category' => $c->id]) }}" method="POST" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:underline">删除</button>
-                    </form>
+                    <div class="admin-table-actions">
+                        <a href="{{ route('admin.categories.edit', ['category' => $c->id]) }}" class="admin-btn-action admin-btn-action--primary">编辑</a>
+                        <form action="{{ route('admin.categories.destroy', ['category' => $c->id]) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="admin-btn-action admin-btn-action--danger">删除</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             @endforeach
