@@ -15,7 +15,7 @@
     $hasBanners = count($bannerUrls) > 0;
     $fallbackGradient = 'linear-gradient(135deg, #6b8e82 0%, #8fa99e 50%, #a8c9bc 100%)';
 @endphp
-<section class="relative w-full aspect-[4/1] min-h-[160px] overflow-hidden flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.12)]" x-data="{ current: 0, total: {{ count($bannerUrls) ?: 1 }} }" x-init="@if(count($bannerUrls) > 1) setInterval(() => { current = (current + 1) % total }, 5000) @endif">
+<section class="relative w-full aspect-[16/9] sm:aspect-[3/1] md:aspect-[4/1] min-h-[140px] sm:min-h-[160px] overflow-hidden flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.12)]" x-data="{ current: 0, total: {{ count($bannerUrls) ?: 1 }} }" x-init="@if(count($bannerUrls) > 1) setInterval(() => { current = (current + 1) % total }, 5000) @endif">
     {{-- 多圖輪播背景 --}}
     @if($hasBanners)
         @foreach($bannerUrls as $i => $url)

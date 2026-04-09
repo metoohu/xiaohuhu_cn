@@ -21,6 +21,7 @@ alwaysApply: false
 ## 视图
 
 - 布局：`front.layouts.master`（与后台 `admin.layouts.master` 分离）。
+- 移动端：`viewport-fit=cover`、底部 Tab（首页 / 分类 / 搜索 / 我的或登录）、`env(safe-area-inset-bottom)` 留白；Web App Manifest 路由 `front.manifest`（`/manifest.webmanifest`）。
 
 ## 注意
 

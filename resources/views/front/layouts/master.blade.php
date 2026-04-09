@@ -2,7 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#6b8e82">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="{{ route('front.manifest') }}">
     <title>{{ $seo['title'] ?? \App\Models\Setting::get('site_title', \App\Models\Setting::adminName()) ?: '小糊涂人生馆' }}</title>
     <meta name="keywords" content="{{ $seo['keywords'] ?? \App\Models\Setting::seoKeywords() }}">
     <meta name="description" content="{{ $seo['description'] ?? \App\Models\Setting::seoDescription() }}">
@@ -37,6 +41,16 @@
         .prose img { border-radius: 0.5rem; }
         .prose { font-family: 'Noto Serif SC', Georgia, serif; }
         .prose p { line-height: 1.9; }
+        /* 移动端底部导航安全区（刘海屏） */
+        .front-mobile-tabbar {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+        }
+        .front-mobile-main-pad {
+            padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+        }
+        @media (min-width: 768px) {
+            .front-mobile-main-pad { padding-bottom: 0; }
+        }
     </style>
     @stack('styles')
 </head>
@@ -97,13 +111,13 @@
                 @endforeach
             </nav>
             <div class="md:hidden shrink-0 ml-auto">
-                <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-[#4a6d63]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <button type="button" @click="mobileMenuOpen = !mobileMenuOpen" :aria-expanded="mobileMenuOpen" aria-controls="front-mobile-drawer" aria-label="打开菜单" class="p-2.5 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-[#4a6d63] rounded-lg active:bg-[#f0eee9]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
             </div>
         </div>
         {{-- 移动端菜单 --}}
-        <div class="md:hidden border-t border-[#eee]" x-show="mobileMenuOpen" x-cloak x-transition>
+        <div id="front-mobile-drawer" class="md:hidden border-t border-[#eee]" x-show="mobileMenuOpen" x-cloak x-transition>
             <div class="px-4 py-4 space-y-1 bg-[#f9f7f5]">
                 <a href="{{ route('front.home') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63]">首页</a>
                 @foreach($navCategories ?? [] as $navCat)
@@ -142,12 +156,41 @@
     </div>
     @endif
 
-    <main class="flex-1">
+    <main class="flex-1 front-mobile-main-pad">
         @yield('content')
     </main>
 
+    {{-- 移动端底部 Tab（仅小屏） --}}
+    <nav class="front-mobile-tabbar md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-[#e5e2dc] bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" aria-label="主导航">
+        <div class="grid grid-cols-4 h-14 max-w-lg mx-auto">
+            <a href="{{ route('front.home') }}" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] {{ request()->routeIs('front.home') ? 'text-[#4a6d63] font-semibold' : 'text-[#777] font-medium' }}" @if(request()->routeIs('front.home')) aria-current="page" @endif>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span class="text-[11px]">首页</span>
+            </a>
+            <a href="{{ route('front.categories.index') }}" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] {{ request()->routeIs('front.categories.*') ? 'text-[#4a6d63] font-semibold' : 'text-[#777] font-medium' }}" @if(request()->routeIs('front.categories.*')) aria-current="page" @endif>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                <span class="text-[11px]">分类</span>
+            </a>
+            <a href="{{ route('front.search') }}" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] {{ request()->routeIs('front.search') ? 'text-[#4a6d63] font-semibold' : 'text-[#777] font-medium' }}" @if(request()->routeIs('front.search')) aria-current="page" @endif>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <span class="text-[11px]">搜索</span>
+            </a>
+            @auth
+            <a href="{{ route('front.my.profile') }}" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] {{ request()->routeIs('front.my.*') ? 'text-[#4a6d63] font-semibold' : 'text-[#777] font-medium' }}" @if(request()->routeIs('front.my.*')) aria-current="page" @endif>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <span class="text-[11px]">我的</span>
+            </a>
+            @else
+            <a href="{{ route('front.login') }}" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] {{ request()->routeIs('front.login') || request()->routeIs('front.register') ? 'text-[#4a6d63] font-semibold' : 'text-[#777] font-medium' }}" @if(request()->routeIs('front.login') || request()->routeIs('front.register')) aria-current="page" @endif>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                <span class="text-[11px]">登录</span>
+            </a>
+            @endauth
+        </div>
+    </nav>
+
     {{-- 底部信息 --}}
-    <footer class="bg-[#f0eee9] py-10 mt-16 text-center">
+    <footer class="bg-[#f0eee9] pt-10 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-10 mt-16 text-center">
         <div class="text-sm text-[#777]">
             {{ \App\Models\Setting::adminName() ?: '小糊涂人生馆' }} © {{ date('Y') }} | 在喧嚣中寻一方宁静，用文字温暖你我
         </div>

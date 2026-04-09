@@ -13,8 +13,26 @@ use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\NewsController;
 use App\Http\Controllers\Front\SearchController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 // ========== 前台路由 ==========
+
+// PWA / 移动端「添加到主屏幕」清单（动态站点名）
+Route::get('manifest.webmanifest', function () {
+    $name = \App\Models\Setting::adminName() ?: '小糊涂人生馆';
+
+    return response()->json([
+        'name' => $name,
+        'short_name' => (string) Str::limit($name, 12, ''),
+        'description' => \App\Models\Setting::seoDescription() ?: '在喧嚣中寻一方宁静，用文字温暖你我',
+        'start_url' => '/',
+        'display' => 'standalone',
+        'background_color' => '#f9f7f5',
+        'theme_color' => '#6b8e82',
+        'lang' => 'zh-CN',
+    ], 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        ->header('Content-Type', 'application/manifest+json; charset=utf-8');
+})->name('front.manifest');
 
 // 首页
 Route::get('/', [HomeController::class, 'index'])->name('front.home');
