@@ -1,61 +1,110 @@
 # =========================
-# OS / IDE
+# 操作系统 / 编辑器
 # =========================
 .DS_Store
 Thumbs.db
+desktop.ini
+ehthumbs.db
+*.swp
+*.swo
+*~
+
 .idea/
 .vscode/
+.fleet/
+.nova/
+.zed/
+*.sublime-project
+*.sublime-workspace
 
-
-# Cursor local cache/state
+# =========================
+# Cursor / AI 本地配置（不提交远程仓库）
+# =========================
+.cursor/
 .cursor-cache/
 agent-transcripts/
 
 # =========================
-# Environment / secrets
+# 环境变量与密钥（切勿提交真实 .env）
 # =========================
 .env
 .env.*
 !.env.example
-playwright.config.js
-# =========================
-# Dependencies
-# =========================
-node_modules/
-vendor/
+
+# Composer 私有源认证（若存在）
+auth.json
 
 # =========================
-# Build / runtime artifacts
+# PHP / Composer 依赖
 # =========================
-public/build/
-public/hot
-bootstrap/cache/*.php
-storage/*.key
-storage/logs/
-storage/framework/cache/
-storage/framework/sessions/
-storage/framework/testing/
-storage/framework/views/
+/vendor/
 
 # =========================
-# Test artifacts
+# Node / 前端构建
 # =========================
-.phpunit.result.cache
-coverage/
-.coverage
-test-results/
-tests/
-playwright-report/
-e2e/
+/node_modules/
+/public/build
+/public/hot
+/public/storage
+!/public/storage/.gitignore
 
-# Generated test reports under docs
-docs/playwright-*-report/
-docs/*-test-report-*.md
-
-# =========================
-# Misc
-# =========================
+# Vite / npm 调试日志
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# =========================
+# Laravel 运行时与缓存
+# =========================
+/.phpunit.cache
+.phpunit.result.cache
+
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
+
+/storage/*.key
+/storage/pail
+
+# storage 下用户上传、日志、编译视图等（子目录另有 .gitignore）
+/storage/logs/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/testing/
+/storage/framework/views/
+
+# Spatie Backup 等备份包输出目录（若启用）
+/storage/app/backups/
+/storage/app/backup*/
+
+# =========================
+# 本地数据库文件（生产用 MySQL，勿提交 sqlite）
+# =========================
+/database/*.sqlite
+/database/*.sqlite-journal
+/database/*.sqlite3
+
+# =========================
+# 测试、E2E、本地文档（不提交远程仓库）
+# =========================
+/tests/
+/e2e/
+/docs/
+
+/coverage
+/.coverage
+/.nyc_output
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# =========================
+# 工具 / 误操作产生的杂项
+# =========================
+# 若在项目根误执行命令生成的空文件，可手动删除
+/tatus
+/how
+
+# Homestead（若使用）
+Homestead.json
+Homestead.yaml

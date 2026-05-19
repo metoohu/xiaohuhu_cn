@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->hasMany(Comment::class);
     }
 
+    public function userArticles(): HasMany
+    {
+        return $this->hasMany(UserArticle::class);
+    }
+
     public function isCommentBanned(): bool
     {
         return $this->comment_banned_at !== null;

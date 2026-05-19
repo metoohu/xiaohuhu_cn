@@ -21,17 +21,36 @@
             </div>
 
             <div class="space-y-4">
-                @forelse($articles as $a)
-                <a href="{{ route('front.articles.show', $a) }}" class="flex gap-4 md:gap-6 p-5 bg-white rounded-2xl border border-haze-200 hover:shadow-lg hover:shadow-primary-500/5 hover:border-primary-200 transition-all duration-300 block group">
-                    @if($a->cover_image ?? null)
+                @forelse($feeds as $feed)
+                    @php
+                        // 双源行：正式文章走 articles 详情；社区稿走 community 公共详情，摘要字段分离避免 XSS
+                        $isArticle = $feed->type === 'article';
+                        $href = $isArticle
+                            ? route('front.articles.show', $feed->article)
+                            : route('front.community.show', $feed->userArticle);
+                        $title = $isArticle ? $feed->article->title : $feed->userArticle->title;
+                        $cover = $isArticle ? ($feed->article->cover_image ?? null) : null;
+                        $date = $isArticle
+                            ? $feed->article->created_at
+                            : ($feed->userArticle->published_at ?? $feed->userArticle->created_at);
+                        $clicks = $isArticle ? ($feed->article->click_num ?? 0) : ($feed->userArticle->click_num ?? 0);
+                        $excerptRaw = $isArticle
+                            ? ($feed->article->content ?? '')
+                            : (($feed->userArticle->excerpt ?? '') !== ''
+                                ? $feed->userArticle->excerpt
+                                : ($feed->userArticle->content_public ?? ''));
+                        $excerpt = \Illuminate\Support\Str::limit(strip_tags($excerptRaw), 100) ?: '点击阅读全文';
+                    @endphp
+                <a href="{{ $href }}" class="flex gap-4 md:gap-6 p-5 bg-white rounded-2xl border border-haze-200 hover:shadow-lg hover:shadow-primary-500/5 hover:border-primary-200 transition-all duration-300 block group">
+                    @if($cover)
                     <div class="w-28 h-24 md:w-36 md:h-28 flex-shrink-0 rounded-xl overflow-hidden bg-haze-100">
-                        <img data-src="{{ \Illuminate\Support\Facades\Storage::url($a->cover_image) }}" alt="{{ $a->title }}" class="w-full h-full object-cover lazyload group-hover:scale-105 transition-transform duration-300" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+                        <img data-src="{{ \Illuminate\Support\Facades\Storage::url($cover) }}" alt="{{ $title }}" class="w-full h-full object-cover lazyload group-hover:scale-105 transition-transform duration-300" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
                     </div>
                     @endif
                     <div class="flex-1 min-w-0">
-                        <h2 class="font-serif font-semibold text-lg text-primary-800 group-hover:text-primary-600 transition-colors line-clamp-2">{{ $a->title }}</h2>
-                        <p class="text-dark-800/60 text-sm mt-1">{{ $a->created_at->format('Y-m-d') }} · 阅读 {{ $a->click_num ?? 0 }}</p>
-                        <p class="text-dark-800/70 text-sm mt-2 line-clamp-2">{{ Str::limit(strip_tags($a->content ?? ''), 100) ?: '点击阅读全文' }}</p>
+                        <h2 class="font-serif font-semibold text-lg text-primary-800 group-hover:text-primary-600 transition-colors line-clamp-2">{{ $title }}</h2>
+                        <p class="text-dark-800/60 text-sm mt-1">{{ $date->format('Y-m-d') }} · 阅读 {{ $clicks }}@if(!$isArticle) · <span class="text-primary-600/80">社区</span>@endif</p>
+                        <p class="text-dark-800/70 text-sm mt-2 line-clamp-2">{{ $excerpt }}</p>
                     </div>
                     <svg class="w-5 h-5 text-haze-400 group-hover:text-primary-500 flex-shrink-0 self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </a>
@@ -40,7 +59,7 @@
                 @endforelse
             </div>
 
-            <div class="mt-8">{{ $articles->links() }}</div>
+            <div class="mt-8">{{ $feeds->links() }}</div>
         </div>
 
         <div class="lg:col-span-1">

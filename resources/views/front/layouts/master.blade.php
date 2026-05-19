@@ -137,7 +137,7 @@
                 @endif
                 @endforeach
                 @auth
-                <div class="pt-2 mt-2 border-t border-[#eee]">
+                <div class="pt-2 mt-2 border-t border-[#eee] space-y-1">
                     <a href="{{ route('front.my.profile') }}" class="block py-2 text-[#6b8e82] hover:text-[#4a6d63] font-medium">个人中心</a>
                 </div>
                 @else
@@ -153,6 +153,11 @@
     @if(session('success'))
     <div class="max-w-5xl mx-auto px-4 py-2">
         <div class="p-3 bg-green-50 text-green-700 rounded-lg text-sm text-center">{{ session('success') }}</div>
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="max-w-5xl mx-auto px-4 py-2">
+        <div class="p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center">{{ session('error') }}</div>
     </div>
     @endif
 

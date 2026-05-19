@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserArticle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -10,9 +11,28 @@ use Illuminate\View\View;
 
 class UserProfileController extends Controller
 {
-    public function edit(): View
+    public function edit(Request $request): View
     {
-        return view('front.user.profile', ['user' => auth()->user()]);
+        $user = auth()->user();
+
+        $pageTab = $request->input('page', 'articles');
+        if (! in_array($pageTab, ['articles', 'more'], true)) {
+            $pageTab = 'articles';
+        }
+
+        $moreTab = $request->input('more', 'showcase');
+        if (! in_array($moreTab, ['showcase', 'profile', 'account'], true)) {
+            $moreTab = 'showcase';
+        }
+
+        $articleTab = $request->input('article_tab', 'all');
+        $articlesQuery = $user->userArticles()->with(['category', 'tags'])->latest('updated_at');
+        if ($articleTab !== 'all' && in_array($articleTab, UserArticle::statusKeys(), true)) {
+            $articlesQuery->where('status', $articleTab);
+        }
+        $articles = $articlesQuery->paginate(config('front.article_per_page', 15))->withQueryString();
+
+        return view('front.user.profile', compact('user', 'articles', 'articleTab', 'pageTab', 'moreTab'));
     }
 
     public function update(Request $request): RedirectResponse
@@ -56,6 +76,14 @@ class UserProfileController extends Controller
 
         $user->update($data);
 
-        return back()->with('success', '资料已保存');
+        $moreTab = $request->input('redirect_more', 'showcase');
+        if (! in_array($moreTab, ['showcase', 'profile'], true)) {
+            $moreTab = 'showcase';
+        }
+
+        return redirect()->route('front.my.profile', [
+            'page' => 'more',
+            'more' => $moreTab,
+        ])->with('success', '资料已保存');
     }
 }

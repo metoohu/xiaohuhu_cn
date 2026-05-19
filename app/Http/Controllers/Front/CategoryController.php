@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Services\Front\FrontHomeFeedMerger;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
@@ -37,11 +38,10 @@ class CategoryController extends Controller
 
         $categoryIds = $category->children->pluck('id')->push($category->id)->toArray();
 
-        $articles = Article::where('status', 'published')
-            ->whereIn('category_id', $categoryIds)
-            ->with('category')
-            ->orderByDesc('created_at')
-            ->paginate(config('front.article_per_page', 15));
+        // 双源列表：复用 FrontHomeFeedMerger 的 UNION 分页实现（与首页 merge 排序语义一致）。
+        /** @var FrontHomeFeedMerger $feedMerger */
+        $feedMerger = app(FrontHomeFeedMerger::class);
+        $feeds = $feedMerger->paginateCategoryDualSource($categoryIds);
 
         $categories = Category::enabled()
             ->whereNull('parent_id')
@@ -60,6 +60,6 @@ class CategoryController extends Controller
             'description' => $category->description ?: \App\Models\Setting::seoDescription(),
         ];
 
-        return view('front.categories.show', compact('category', 'articles', 'categories', 'hotArticles', 'seo'));
+        return view('front.categories.show', compact('category', 'feeds', 'categories', 'hotArticles', 'seo'));
     }
 }

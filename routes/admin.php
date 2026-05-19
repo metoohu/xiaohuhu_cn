@@ -63,6 +63,14 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::post('articles/{article}/approve', [\App\Http\Controllers\Admin\ArticleController::class, 'approve'])->name('articles.approve');
     Route::post('articles/{article}/reject', [\App\Http\Controllers\Admin\ArticleController::class, 'reject'])->name('articles.reject');
 
+    // 用户投稿（社区稿审核）
+    Route::get('user-articles', [\App\Http\Controllers\Admin\UserArticleController::class, 'index'])->name('user-articles.index');
+    Route::post('user-articles/batch-approve', [\App\Http\Controllers\Admin\UserArticleController::class, 'batchApprove'])->name('user-articles.batch-approve');
+    Route::post('user-articles/batch-reject', [\App\Http\Controllers\Admin\UserArticleController::class, 'batchReject'])->name('user-articles.batch-reject');
+    Route::get('user-articles/{userArticle}', [\App\Http\Controllers\Admin\UserArticleController::class, 'show'])->name('user-articles.show');
+    Route::post('user-articles/{userArticle}/approve', [\App\Http\Controllers\Admin\UserArticleController::class, 'approve'])->name('user-articles.approve');
+    Route::post('user-articles/{userArticle}/reject', [\App\Http\Controllers\Admin\UserArticleController::class, 'reject'])->name('user-articles.reject');
+
     // 评论管理
     Route::resource('comments', \App\Http\Controllers\Admin\CommentController::class)->except(['create', 'store']);
     Route::post('comments/{comment}/approve', [\App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('comments.approve');

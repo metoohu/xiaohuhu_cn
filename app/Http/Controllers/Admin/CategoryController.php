@@ -53,9 +53,12 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:255',
             'icon' => 'nullable|image|max:2048',
             'status' => 'nullable|in:0,1',
+            'ai_tone' => 'nullable|string|in:'.implode(',', Category::aiToneKeys()),
+            'user_can_submit' => 'nullable|boolean',
         ]);
 
-        $data = $request->only('name', 'parent_id', 'sort', 'description', 'status');
+        $data = $request->only('name', 'parent_id', 'sort', 'description', 'status', 'ai_tone');
+        $data['user_can_submit'] = $request->boolean('user_can_submit');
         $data['sort'] = $data['sort'] ?? 0;
         $data['status'] = isset($data['status']) ? (int) $data['status'] : Category::STATUS_ENABLED;
         if ($request->filled('slug')) {
@@ -72,6 +75,10 @@ class CategoryController extends Controller
 
         if ($request->hasFile('icon')) {
             $data['icon'] = $request->file('icon')->store(config('admin.upload_path', 'uploads'), 'public');
+        }
+
+        if (empty($data['ai_tone'])) {
+            $data['ai_tone'] = null;
         }
 
         Category::create($data);
@@ -109,9 +116,12 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:255',
             'icon' => 'nullable|image|max:2048',
             'status' => 'nullable|in:0,1',
+            'ai_tone' => 'nullable|string|in:'.implode(',', Category::aiToneKeys()),
+            'user_can_submit' => 'nullable|boolean',
         ]);
 
-        $data = $request->only('name', 'parent_id', 'sort', 'description', 'status');
+        $data = $request->only('name', 'parent_id', 'sort', 'description', 'status', 'ai_tone');
+        $data['user_can_submit'] = $request->boolean('user_can_submit');
         if ($request->filled('slug')) {
             $data['slug'] = $request->slug;
         } else {
@@ -122,6 +132,10 @@ class CategoryController extends Controller
         }
         if (isset($data['status'])) {
             $data['status'] = (int) $data['status'];
+        }
+
+        if (array_key_exists('ai_tone', $data) && ($data['ai_tone'] === '' || $data['ai_tone'] === null)) {
+            $data['ai_tone'] = null;
         }
 
         if ($request->hasFile('icon')) {
@@ -166,7 +180,7 @@ class CategoryController extends Controller
             $deleted = 0;
             $skipped = [];
             foreach ($categories as $category) {
-                if ($category->articles()->exists()) {
+                if ($category->articles()->exists() || $category->userArticles()->exists()) {
                     $skipped[] = $category->name;
                     continue;
                 }
@@ -180,11 +194,11 @@ class CategoryController extends Controller
             if ($deleted > 0) {
                 $msg = "已批量删除 {$deleted} 个分类";
                 if (!empty($skipped)) {
-                    $msg .= '，以下分类因有关联文章未删除：' . implode('、', $skipped);
+                    $msg .= '，以下分类因有关联文章或用户投稿未删除：' . implode('、', $skipped);
                 }
                 return back()->with('success', $msg);
             }
-            return back()->with('error', empty($skipped) ? '请选择要删除的分类' : '所选分类均有关联文章，无法删除');
+            return back()->with('error', empty($skipped) ? '请选择要删除的分类' : '所选分类均有关联文章或用户投稿，无法删除');
         }
 
         // modify
@@ -215,8 +229,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
-        if ($category->articles()->exists()) {
-            return back()->withErrors(['error' => '该分类下有关联文章，无法删除']);
+        if ($category->articles()->exists() || $category->userArticles()->exists()) {
+            return back()->withErrors(['error' => '该分类下有关联文章或用户投稿，无法删除']);
         }
 
         if ($category->icon) {

@@ -17,7 +17,7 @@ class CommentController extends Controller
         $keyword = $request->input('keyword');
 
         $comments = Comment::query()
-            ->with(['article', 'user', 'parent'])
+            ->with(['article', 'userArticle', 'user', 'parent'])
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($keyword, fn ($q) => $q->where('content', 'like', "%{$keyword}%"))
             ->latest()
@@ -28,7 +28,7 @@ class CommentController extends Controller
 
     public function show(Comment $comment): View
     {
-        $comment->load(['article', 'user', 'parent', 'replies']);
+        $comment->load(['article', 'userArticle', 'user', 'parent', 'replies']);
 
         return view('admin.comments.show', compact('comment'));
     }

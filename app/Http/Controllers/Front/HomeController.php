@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Models\UserArticle;
+use App\Services\Front\FrontHomeFeedMerger;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -23,6 +25,37 @@ class HomeController extends Controller
             $awakeIds = $awake ? $awake->children->pluck('id')->push($awake->id)->toArray() : [];
             $healingIds = $healing ? $healing->children->pluck('id')->push($healing->id)->toArray() : [];
 
+            /** @var FrontHomeFeedMerger $merger */
+            $merger = app(FrontHomeFeedMerger::class);
+            $latestLimit = (int) config('front.home_article_count', 10);
+            $blockLimit = 3;
+
+            // 各侧先取至多 N 条再合并截断，避免漏掉另一侧应进首页的新稿
+            $latestArticlesPart = Article::where('status', 'published')
+                ->with('category')
+                ->orderByDesc('created_at')
+                ->take($latestLimit)
+                ->get();
+            $latestUserPart = UserArticle::query()
+                ->publishedForFront()
+                ->orderByDesc('published_at')
+                ->take($latestLimit)
+                ->get();
+
+            $awakeArticlesPart = ! empty($awakeIds)
+                ? Article::where('status', 'published')->whereIn('category_id', $awakeIds)->with('category')->orderByDesc('created_at')->take($blockLimit)->get()
+                : collect();
+            $awakeUserPart = ! empty($awakeIds)
+                ? UserArticle::query()->publishedForFront()->whereIn('category_id', $awakeIds)->take($blockLimit)->get()
+                : collect();
+
+            $healingArticlesPart = ! empty($healingIds)
+                ? Article::where('status', 'published')->whereIn('category_id', $healingIds)->with('category')->orderByDesc('created_at')->take($blockLimit)->get()
+                : collect();
+            $healingUserPart = ! empty($healingIds)
+                ? UserArticle::query()->publishedForFront()->whereIn('category_id', $healingIds)->take($blockLimit)->get()
+                : collect();
+
             return [
                 'banners' => $banners,
                 'recommend_articles' => Article::where('status', 'published')
@@ -31,17 +64,9 @@ class HomeController extends Controller
                     ->orderByDesc('created_at')
                     ->take(6)
                     ->get(),
-                'latest_articles' => Article::where('status', 'published')
-                    ->with('category')
-                    ->orderByDesc('created_at')
-                    ->take(config('front.home_article_count', 10))
-                    ->get(),
-                'awake_articles' => !empty($awakeIds)
-                    ? Article::where('status', 'published')->whereIn('category_id', $awakeIds)->with('category')->orderByDesc('created_at')->take(3)->get()
-                    : collect(),
-                'healing_articles' => !empty($healingIds)
-                    ? Article::where('status', 'published')->whereIn('category_id', $healingIds)->with('category')->orderByDesc('created_at')->take(3)->get()
-                    : collect(),
+                'latest_articles' => $merger->merge($latestArticlesPart, $latestUserPart, $latestLimit),
+                'awake_articles' => $merger->merge($awakeArticlesPart, $awakeUserPart, $blockLimit),
+                'healing_articles' => $merger->merge($healingArticlesPart, $healingUserPart, $blockLimit),
             ];
         });
 

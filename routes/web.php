@@ -7,6 +7,8 @@ use App\Http\Controllers\Front\CompanyInfoController;
 use App\Http\Controllers\Front\ArticleController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\CommentController;
+use App\Http\Controllers\Front\CommunityUserArticleController;
+use App\Http\Controllers\Front\MyUserArticleController;
 use App\Http\Controllers\Front\UserProfileController;
 use App\Http\Controllers\Front\UserStickerController;
 use App\Http\Controllers\Front\HomeController;
@@ -49,6 +51,9 @@ Route::get('auth/captcha', [AuthController::class, 'captcha'])->name('front.capt
 Route::get('articles', [ArticleController::class, 'index'])->name('front.articles.index');
 Route::get('articles/{article}', [ArticleController::class, 'show'])->name('front.articles.show');
 
+// 用户社区稿（已发布，公共读）
+Route::get('community/{userArticle}', [CommunityUserArticleController::class, 'show'])->name('front.community.show');
+
 // 分类（前台使用 slug 解析）
 Route::get('categories', [CategoryController::class, 'index'])->name('front.categories.index');
 Route::get('categories/{category:slug}', [CategoryController::class, 'show'])->name('front.categories.show');
@@ -79,6 +84,18 @@ Route::middleware(['auth', 'front.active'])->prefix('my')->name('front.my.')->gr
     Route::get('stickers/json', [UserStickerController::class, 'json'])->name('stickers.json');
     Route::post('stickers', [UserStickerController::class, 'store'])->name('stickers.store');
     Route::delete('stickers/{userSticker}', [UserStickerController::class, 'destroy'])->name('stickers.destroy');
+
+    // 我的社区稿（用户投稿）
+    Route::get('articles', [MyUserArticleController::class, 'index'])->name('articles');
+    // 须在 articles/{userArticle} 之前注册，避免被动态段吞掉
+    Route::post('articles/upload-image', [MyUserArticleController::class, 'uploadImage'])->name('articles.upload-image');
+    Route::get('articles/create', [MyUserArticleController::class, 'create'])->name('articles.create');
+    Route::post('articles', [MyUserArticleController::class, 'store'])->name('articles.store');
+    Route::get('articles/{userArticle}/edit', [MyUserArticleController::class, 'edit'])->name('articles.edit');
+    Route::put('articles/{userArticle}', [MyUserArticleController::class, 'update'])->name('articles.update');
+    Route::delete('articles/{userArticle}', [MyUserArticleController::class, 'destroy'])->name('articles.destroy');
+    Route::post('articles/{userArticle}/submit', [MyUserArticleController::class, 'submit'])->name('articles.submit');
+    Route::post('articles/{userArticle}/withdraw', [MyUserArticleController::class, 'withdraw'])->name('articles.withdraw');
 });
 
 // ========== 公司信息（原有功能） ==========

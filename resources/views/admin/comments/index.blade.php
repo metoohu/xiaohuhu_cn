@@ -21,7 +21,7 @@
         <thead>
             <tr class="border-b">
                 <th class="text-left py-2">ID</th>
-                <th class="text-left py-2">文章</th>
+                <th class="text-left py-2">文章 / 社区稿</th>
                 <th class="text-left py-2">内容</th>
                 <th class="text-left py-2">作者</th>
                 <th class="text-left py-2">状态</th>
@@ -33,7 +33,7 @@
             @foreach ($comments as $c)
             <tr class="border-b border-slate-100">
                 <td class="py-2">{{ $c->id }}</td>
-                <td class="py-2">{{ Str::limit($c->article?->title ?? '-', 20) }}</td>
+                <td class="py-2">{{ Str::limit($c->article?->title ?? $c->userArticle?->title ?? '-', 24) }}</td>
                 <td class="py-2">{{ Str::limit($c->content, 50) }}</td>
                 <td class="py-2">{{ $c->user?->name ?? $c->author_name ?? '访客' }}</td>
                 <td class="py-2">

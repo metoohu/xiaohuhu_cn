@@ -14,7 +14,25 @@ class Category extends Model
 
     public const STATUS_ENABLED = 1;
 
-    protected $fillable = ['name', 'slug', 'parent_id', 'sort', 'description', 'icon', 'status'];
+    /** AI 情感文文风（与后台下拉一致） */
+    public const AI_TONE_HEALING = 'healing';
+
+    public const AI_TONE_JOURNEY = 'journey';
+
+    public const AI_TONE_TRIVIAL = 'trivial';
+
+    public const AI_TONE_SOBER = 'sober';
+
+    public const AI_TONE_QUIET = 'quiet';
+
+    protected $fillable = ['name', 'slug', 'parent_id', 'sort', 'description', 'icon', 'status', 'ai_tone', 'user_can_submit'];
+
+    protected function casts(): array
+    {
+        return [
+            'user_can_submit' => 'boolean',
+        ];
+    }
 
     public function scopeEnabled(Builder $query): Builder
     {
@@ -39,6 +57,70 @@ class Category extends Model
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+    public function userArticles()
+    {
+        return $this->hasMany(UserArticle::class);
+    }
+
+    /**
+     * 可选文风键名列表（用于校验与下拉）。
+     *
+     * @return list<string>
+     */
+    public static function aiToneKeys(): array
+    {
+        return [
+            self::AI_TONE_HEALING,
+            self::AI_TONE_JOURNEY,
+            self::AI_TONE_TRIVIAL,
+            self::AI_TONE_SOBER,
+            self::AI_TONE_QUIET,
+        ];
+    }
+
+    /**
+     * 后台展示用：键 => 中文名
+     *
+     * @return array<string, string>
+     */
+    public static function aiToneLabels(): array
+    {
+        return [
+            self::AI_TONE_HEALING => '治愈',
+            self::AI_TONE_JOURNEY => '人生旅途',
+            self::AI_TONE_TRIVIAL => '生活琐碎',
+            self::AI_TONE_SOBER => '人间清醒',
+            self::AI_TONE_QUIET => '宁静角落',
+        ];
+    }
+
+    /**
+     * 解析实际文风：未配置时默认「治愈」。
+     */
+    public function resolvedAiTone(): string
+    {
+        $tone = $this->ai_tone;
+
+        return in_array($tone, self::aiToneKeys(), true) ? $tone : self::AI_TONE_HEALING;
+    }
+
+    /**
+     * 是否为叶子类目（无子分类记录即视为叶子）。
+     */
+    public function isLeaf(): bool
+    {
+        return ! static::query()->where('parent_id', $this->id)->exists();
+    }
+
+    /**
+     * 启用且无子分类：参与「每叶子类目每日一篇」调度。
+     */
+    public function scopeEnabledLeaves(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_ENABLED)
+            ->whereDoesntHave('children');
     }
 
     /**
@@ -71,5 +153,20 @@ class Category extends Model
         $add($roots);
 
         return $result;
+    }
+
+    /**
+     * 用户投稿可选分类：启用且后台勾选「允许用户投稿」。
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Category>
+     */
+    public static function getSubmitSelectOptions()
+    {
+        return static::query()
+            ->enabled()
+            ->where('user_can_submit', true)
+            ->orderBy('sort')
+            ->orderBy('id')
+            ->get(['id', 'name', 'parent_id']);
     }
 }

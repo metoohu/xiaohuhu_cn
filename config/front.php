@@ -45,4 +45,18 @@ return [
         'max_kb' => (int) env('FRONT_STICKER_MAX_KB', 512),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | 用户社区稿（投稿规则，与后台分类 user_can_submit 配合）
+    |--------------------------------------------------------------------------
+    */
+    'user_article' => [
+        'daily_submit_limit' => (int) env('FRONT_USER_ARTICLE_DAILY_LIMIT', 2),
+        'title_min' => (int) env('FRONT_USER_ARTICLE_TITLE_MIN', 4),
+        'title_max' => (int) env('FRONT_USER_ARTICLE_TITLE_MAX', 90),
+        'content_min' => (int) env('FRONT_USER_ARTICLE_CONTENT_MIN', 20),
+        'content_max' => (int) env('FRONT_USER_ARTICLE_CONTENT_MAX', 20000),
+        'max_tags' => (int) env('FRONT_USER_ARTICLE_MAX_TAGS', 3),
+    ],
+
 ];

@@ -4,11 +4,14 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "serve:9000": "php artisan serve --host=127.0.0.1 --port=9000",
         "dev": "vite",
         "test:e2e": "playwright test",
+        "test:e2e:emotional": "playwright test e2e/emotional-article-ai.spec.js",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:headed": "playwright test --headed",
-        "test:e2e:report": "playwright show-report e2e/output/html-report"
+        "test:e2e:report": "playwright show-report e2e/output/html-report",
+        "export:shenzhen-design-docs": "node tools/export-shenzhen-design-docs.mjs"
     },
     "devDependencies": {
         "@playwright/test": "^1.58.2",

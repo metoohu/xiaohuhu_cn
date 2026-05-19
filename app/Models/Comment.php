@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Comment extends Model
 {
-    protected $fillable = ['article_id', 'user_id', 'author_name', 'author_email', 'content', 'parent_id', 'status'];
+    protected $fillable = ['article_id', 'user_article_id', 'user_id', 'author_name', 'author_email', 'content', 'parent_id', 'status'];
 
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';
@@ -18,6 +18,11 @@ class Comment extends Model
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
+    }
+
+    public function userArticle(): BelongsTo
+    {
+        return $this->belongsTo(UserArticle::class);
     }
 
     public function user(): BelongsTo

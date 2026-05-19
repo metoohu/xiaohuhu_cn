@@ -42,6 +42,16 @@
                 <textarea name="description" rows="3" class="w-full rounded border-slate-300">{{ old('description', $category->description) }}</textarea>
             </div>
             <div>
+                <label class="block text-sm font-medium mb-1">AI 情感文文风</label>
+                <select name="ai_tone" class="w-full rounded border-slate-300">
+                    <option value="" @selected(empty(old('ai_tone', $category->ai_tone))))>默认（治愈）</option>
+                    @foreach (\App\Models\Category::aiToneLabels() as $key => $label)
+                        <option value="{{ $key }}" @selected(old('ai_tone', $category->ai_tone) === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-slate-500 mt-1">仅启用且无子分类的叶子类目参与每日定时生成；留空则按「治愈」风格。</p>
+            </div>
+            <div>
                 <label class="block text-sm font-medium mb-1">图标/封面图</label>
                 @if ($category->icon)
                 <p class="text-sm text-slate-500 mb-1">当前：<a href="{{ \Illuminate\Support\Facades\Storage::url($category->icon) }}" target="_blank" class="text-blue-600">查看</a></p>
@@ -50,7 +60,13 @@
                 <p class="text-xs text-slate-500 mt-1">支持 jpg、png、gif，最大 2MB</p>
             </div>
         </div>
-        <div class="mt-6 flex gap-2">
+            <div>
+                <label class="inline-flex items-center gap-2 text-sm">
+                    <input type="checkbox" name="user_can_submit" value="1" @checked((bool) old('user_can_submit', $category->user_can_submit)) class="rounded border-slate-300">
+                    允许用户投稿（前台「写文章」可选此分类）
+                </label>
+            </div>
+            <div class="mt-6 flex gap-2">
             <button type="submit" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700">更新</button>
             <a href="{{ route('admin.categories.index') }}" class="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300">取消</a>
         </div>

@@ -36,32 +36,55 @@ class CommentController extends Controller
         }
 
         $request->validate([
-            'article_id' => 'required|exists:articles,id',
+            'article_id' => ['nullable', 'integer', 'exists:articles,id', 'prohibits:user_article_id'],
+            'user_article_id' => ['nullable', 'integer', 'exists:user_articles,id', 'prohibits:article_id'],
             'content' => 'required|string|max:2000',
         ]);
+
+        if (! $request->filled('article_id') && ! $request->filled('user_article_id')) {
+            return response()->json(['message' => '请指定文章或社区稿'], 422);
+        }
 
         $stickerErr = CommentContentFormatter::validateUserStickers($request->input('content', ''), (int) auth()->id());
         if ($stickerErr !== null) {
             return response()->json(['message' => $stickerErr], 422);
         }
 
-        $article = \App\Models\Article::findOrFail($request->article_id);
-        if ($article->status !== 'published') {
-            return response()->json(['message' => '文章不存在或已关闭'], 404);
-        }
-
         if (! \App\Models\Setting::get('comment_enabled', '1')) {
             return response()->json(['message' => '评论已关闭'], 403);
         }
 
-        Comment::create([
-            'article_id' => $request->article_id,
-            'user_id' => auth()->id(),
-            'author_name' => auth()->user()->name,
-            'author_email' => auth()->user()->email,
-            'content' => $request->content,
-            'status' => 'pending',
-        ]);
+        if ($request->filled('article_id')) {
+            $article = \App\Models\Article::findOrFail((int) $request->article_id);
+            if ($article->status !== 'published') {
+                return response()->json(['message' => '文章不存在或已关闭'], 404);
+            }
+
+            Comment::create([
+                'article_id' => (int) $request->article_id,
+                'user_article_id' => null,
+                'user_id' => auth()->id(),
+                'author_name' => auth()->user()->name,
+                'author_email' => auth()->user()->email,
+                'content' => $request->content,
+                'status' => 'pending',
+            ]);
+        } else {
+            $ua = \App\Models\UserArticle::findOrFail((int) $request->user_article_id);
+            if ($ua->status !== \App\Models\UserArticle::STATUS_PUBLISHED || $ua->published_at === null) {
+                return response()->json(['message' => '社区稿不存在或未发布'], 404);
+            }
+
+            Comment::create([
+                'article_id' => null,
+                'user_article_id' => $ua->id,
+                'user_id' => auth()->id(),
+                'author_name' => auth()->user()->name,
+                'author_email' => auth()->user()->email,
+                'content' => $request->content,
+                'status' => 'pending',
+            ]);
+        }
 
         return response()->json(['message' => '评论已提交，待审核后显示']);
     }

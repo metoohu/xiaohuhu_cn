@@ -44,7 +44,9 @@
 {{-- 精选内容区 --}}
 <section class="max-w-[1200px] mx-auto px-5 my-16">
     @php
-        $fallback = $recommend_articles->isNotEmpty() ? $recommend_articles : $latest_articles;
+        // 推荐仍为 Article；最新列表为 FrontFeedCard，统一转成卡片再作板块兜底
+        $recommendCards = $recommend_articles->map(fn ($a) => \App\Services\Front\FrontFeedCard::fromArticle($a));
+        $fallback = $recommendCards->isNotEmpty() ? $recommendCards : $latest_articles;
         $awakeArticles = $awake_articles->isNotEmpty() ? $awake_articles : $fallback->take(3);
         $healingArticles = $healing_articles->isNotEmpty() ? $healing_articles : $fallback->skip(3)->take(3);
     @endphp
@@ -55,13 +57,13 @@
         <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60px] h-0.5 bg-[#6b8e82]"></span>
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-5">
-        @forelse($awakeArticles as $a)
-        <a href="{{ route('front.articles.show', $a) }}" class="group bg-white p-6 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:-translate-y-1 transition-transform duration-300">
-            <h3 class="text-lg text-[#333] mb-4 group-hover:text-[#4a6d63] transition-colors line-clamp-2">{{ $a->title }}</h3>
-            <p class="text-sm text-[#666] mb-5 line-clamp-2">{{ Str::limit(strip_tags($a->content ?? ''), 80) ?: '点击阅读全文' }}</p>
+        @forelse($awakeArticles as $card)
+        <a href="{{ $card->url() }}" class="group bg-white p-6 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:-translate-y-1 transition-transform duration-300">
+            <h3 class="text-lg text-[#333] mb-4 group-hover:text-[#4a6d63] transition-colors line-clamp-2">{{ e($card->title()) }}</h3>
+            <p class="text-sm text-[#666] mb-5 line-clamp-2">{{ e($card->excerpt()) }}</p>
             <div class="flex justify-between items-center">
                 <span class="text-sm text-[#6b8e82] group-hover:text-[#4a6d63]">阅读更多 →</span>
-                <span class="text-xs text-[#999]">阅读 {{ $a->click_num ?? 0 }}</span>
+                <span class="text-xs text-[#999]">阅读 {{ $card->clickNum() }}</span>
             </div>
         </a>
         @empty
@@ -75,13 +77,13 @@
         <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60px] h-0.5 bg-[#6b8e82]"></span>
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-5">
-        @forelse($healingArticles as $a)
-        <a href="{{ route('front.articles.show', $a) }}" class="group bg-white p-6 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:-translate-y-1 transition-transform duration-300">
-            <h3 class="text-lg text-[#333] mb-4 group-hover:text-[#4a6d63] transition-colors line-clamp-2">{{ $a->title }}</h3>
-            <p class="text-sm text-[#666] mb-5 line-clamp-2">{{ Str::limit(strip_tags($a->content ?? ''), 80) ?: '点击阅读全文' }}</p>
+        @forelse($healingArticles as $card)
+        <a href="{{ $card->url() }}" class="group bg-white p-6 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.05)] hover:-translate-y-1 transition-transform duration-300">
+            <h3 class="text-lg text-[#333] mb-4 group-hover:text-[#4a6d63] transition-colors line-clamp-2">{{ e($card->title()) }}</h3>
+            <p class="text-sm text-[#666] mb-5 line-clamp-2">{{ e($card->excerpt()) }}</p>
             <div class="flex justify-between items-center">
                 <span class="text-sm text-[#6b8e82] group-hover:text-[#4a6d63]">阅读更多 →</span>
-                <span class="text-xs text-[#999]">阅读 {{ $a->click_num ?? 0 }}</span>
+                <span class="text-xs text-[#999]">阅读 {{ $card->clickNum() }}</span>
             </div>
         </a>
         @empty
