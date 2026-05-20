@@ -11,6 +11,7 @@ use App\Http\Controllers\Front\CommunityUserArticleController;
 use App\Http\Controllers\Front\MyUserArticleController;
 use App\Http\Controllers\Front\UserProfileController;
 use App\Http\Controllers\Front\UserStickerController;
+use App\Http\Controllers\Front\ForbiddenContentScanController;
 use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\NewsController;
 use App\Http\Controllers\Front\SearchController;
@@ -75,6 +76,11 @@ Route::get('news/{news}', [NewsController::class, 'show'])->name('front.news.sho
 Route::post('comments', [CommentController::class, 'store'])
     ->middleware('front.active')
     ->name('front.comments.store');
+
+// 违禁词实时扫描（登录会员，限流；不下发词库）
+Route::post('forbidden-content/scan', [ForbiddenContentScanController::class, 'store'])
+    ->middleware(['auth', 'front.active', 'throttle:60,1'])
+    ->name('front.forbidden-content.scan');
 
 // 登录用户：表情包管理（评论区可选用）
 Route::middleware(['auth', 'front.active'])->prefix('my')->name('front.my.')->group(function () {

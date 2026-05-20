@@ -157,6 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initConfig.base_url = 'https://cdn.jsdelivr.net/npm/tinymce@6/';
     initConfig.suffix = '.min';
     @endif
+    initConfig.setup = function (editor) {
+        editor.on('input change keyup Undo Redo SetContent', function () {
+            document.dispatchEvent(new CustomEvent('forbidden-content:body-changed'));
+        });
+    };
     tinymce.init(initConfig);
 });
 </script>

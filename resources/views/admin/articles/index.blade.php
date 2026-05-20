@@ -6,7 +6,10 @@
 <div class="bg-white rounded-lg shadow p-4">
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold">文章管理</h2>
-        <a href="{{ route('admin.articles.create') }}" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 text-sm">新增文章</a>
+        <div class="flex gap-2">
+            <a href="{{ route('admin.articles.import') }}" class="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300 text-sm">批量导入</a>
+            <a href="{{ route('admin.articles.create') }}" class="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 text-sm">新增文章</a>
+        </div>
     </div>
 
     <form method="GET" class="mb-4 flex flex-wrap gap-2">

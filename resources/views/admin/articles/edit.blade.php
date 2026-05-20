@@ -5,6 +5,8 @@
 @section('content')
 <div class="bg-white rounded-lg shadow p-4">
     <h2 class="text-xl font-bold mb-4">编辑文章</h2>
+    <x-forbidden-content-alert />
+    @include('partials.forbidden-content-live-scan-panel')
     <form method="POST" action="{{ route('admin.articles.update', $article) }}" enctype="multipart/form-data" id="article-edit-form">
         @csrf
         @method('PUT')
@@ -12,6 +14,7 @@
             <div>
                 <label class="block text-sm font-medium mb-1">标题</label>
                 <input type="text" name="title" value="{{ old('title', $article->title) }}" required class="w-full rounded border-slate-300">
+                <div id="forbidden-title-preview" class="hidden mt-1 text-sm leading-relaxed"></div>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">分类</label>
@@ -56,7 +59,10 @@
             </div>
             @endif
             <div>
-                <label class="block text-sm font-medium mb-1">内容</label>
+                <label class="block text-sm font-medium mb-1">
+                    内容
+                    <span id="forbidden-body-badge" class="hidden ml-2 text-xs font-normal text-red-600"></span>
+                </label>
                 <textarea name="content" id="article-content" rows="15" class="w-full rounded border-slate-300">{{ old('content', $article->content) }}</textarea>
             </div>
         </div>
@@ -68,5 +74,12 @@
 </div>
 @push('scripts')
 @include('admin.articles.partials.tinymce', ['formId' => 'article-edit-form'])
+@include('partials.forbidden-content-live-scan-init', [
+    'scanUrl' => route('admin.forbidden-words.scan'),
+    'context' => 'article',
+    'titleSelector' => 'input[name="title"]',
+    'bodySelector' => '#article-content',
+    'bodyTinymce' => true,
+])
 @endpush
 @endsection

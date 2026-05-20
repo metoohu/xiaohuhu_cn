@@ -12,6 +12,9 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
     <h1 class="text-2xl font-serif font-semibold text-primary-800 mb-6">编辑投稿</h1>
 
+    <x-forbidden-content-alert />
+    @include('partials.forbidden-content-live-scan-panel')
+
     @if($userArticle->status === \App\Models\UserArticle::STATUS_PUBLISHED)
     <div class="p-4 rounded-xl bg-primary-50/80 border border-primary-200 text-sm text-dark-800/80 mb-6">
         已上线正文仍对读者展示；此处修改保存后需再次「提交审核」，通过后才会替换线上版本。
@@ -42,10 +45,14 @@
         <div>
             <label class="block text-sm font-medium text-dark-800/80 mb-1">标题 <span class="text-red-500">*</span></label>
             <input type="text" name="title" value="{{ old('title', $userArticle->title) }}" required maxlength="120" class="w-full rounded-xl border-haze-200">
+            <div id="forbidden-title-preview" class="hidden mt-1 text-sm leading-relaxed"></div>
             @error('title')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
         <div>
-            <label class="block text-sm font-medium text-dark-800/80 mb-1">正文 <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-dark-800/80 mb-1">
+                正文 <span class="text-red-500">*</span>
+                <span id="forbidden-body-badge" class="hidden ml-2 text-xs font-normal text-red-600"></span>
+            </label>
             <p class="text-xs text-dark-800/50 mb-1">与后台文章相同的可视化编辑器；字数按纯文本计算。</p>
             {{-- 勿加 required：TinyMCE 会隐藏 textarea，浏览器会认为正文为空而静默拦截提交 --}}
             <textarea id="user-article-content" name="content" rows="14" class="w-full rounded-xl border-haze-200 font-sans text-sm">{{ old('content', $defaultBody) }}</textarea>
@@ -55,6 +62,7 @@
         <div>
             <label class="block text-sm font-medium text-dark-800/80 mb-1">标签（最多 3 个，逗号分隔）</label>
             <input type="text" name="tags_csv" value="{{ old('tags_csv', $userArticle->tags->pluck('name')->implode('，')) }}" class="w-full rounded-xl border-haze-200">
+            <div id="forbidden-tags-preview" class="hidden mt-1 text-sm leading-relaxed"></div>
             @error('tags')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
         <div class="flex flex-wrap gap-3 pt-2">
@@ -70,4 +78,12 @@
 
 @push('scripts')
 @include('front.my.articles.partials.tinymce', ['formId' => 'user-article-form', 'textareaId' => 'user-article-content'])
+@include('partials.forbidden-content-live-scan-init', [
+    'scanUrl' => route('front.forbidden-content.scan'),
+    'context' => 'user_article',
+    'titleSelector' => 'input[name="title"]',
+    'bodySelector' => '#user-article-content',
+    'bodyTinymce' => true,
+    'tagsSelector' => 'input[name="tags_csv"]',
+])
 @endpush

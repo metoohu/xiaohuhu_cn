@@ -5,12 +5,15 @@
 @section('content')
 <div class="bg-white rounded-lg shadow p-4">
     <h2 class="text-xl font-bold mb-4">新增文章</h2>
+    <x-forbidden-content-alert />
+    @include('partials.forbidden-content-live-scan-panel')
     <form method="POST" action="{{ route('admin.articles.store') }}" enctype="multipart/form-data" id="article-create-form">
         @csrf
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium mb-1">标题</label>
                 <input type="text" name="title" value="{{ old('title') }}" required class="w-full rounded border-slate-300">
+                <div id="forbidden-title-preview" class="hidden mt-1 text-sm leading-relaxed"></div>
             </div>
             <div>
                 <label class="block text-sm font-medium mb-1">分类</label>
@@ -42,7 +45,10 @@
                 <p class="text-xs text-slate-500 mt-1">选择「提交审核」后，需管理员审核通过才会在前台发布</p>
             </div>
             <div>
-                <label class="block text-sm font-medium mb-1">内容</label>
+                <label class="block text-sm font-medium mb-1">
+                    内容
+                    <span id="forbidden-body-badge" class="hidden ml-2 text-xs font-normal text-red-600"></span>
+                </label>
                 <textarea name="content" id="article-content" rows="15" class="w-full rounded border-slate-300">{{ old('content') }}</textarea>
             </div>
         </div>
@@ -54,5 +60,12 @@
 </div>
 @push('scripts')
 @include('admin.articles.partials.tinymce', ['formId' => 'article-create-form'])
+@include('partials.forbidden-content-live-scan-init', [
+    'scanUrl' => route('admin.forbidden-words.scan'),
+    'context' => 'article',
+    'titleSelector' => 'input[name="title"]',
+    'bodySelector' => '#article-content',
+    'bodyTinymce' => true,
+])
 @endpush
 @endsection

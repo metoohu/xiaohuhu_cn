@@ -2,6 +2,7 @@
 
 namespace App\Services\EmotionalArticle;
 
+use App\Services\EmotionalArticle\Contracts\EmotionalArticleGenerator;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -9,7 +10,7 @@ use RuntimeException;
 /**
  * 调用火山方舟（豆包）OpenAPI 兼容 chat/completions，解析 JSON 稿件。
  */
-final class DoubaoEmotionalArticleClient
+final class DoubaoEmotionalArticleClient implements EmotionalArticleGenerator
 {
     public function __construct(
         private EmotionalArticlePromptBuilder $promptBuilder,

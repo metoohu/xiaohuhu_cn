@@ -56,7 +56,10 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::put('categories/{category:id}', [\App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category:id}', [\App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    // 文章管理
+    // 文章管理（静态路由须先于 resource）
+    Route::get('articles/import', [\App\Http\Controllers\Admin\ArticleImportController::class, 'create'])->name('articles.import');
+    Route::post('articles/import', [\App\Http\Controllers\Admin\ArticleImportController::class, 'store'])->name('articles.import.store');
+    Route::get('articles/import/template', [\App\Http\Controllers\Admin\ArticleImportController::class, 'template'])->name('articles.import.template');
     Route::post('articles/batch', [\App\Http\Controllers\Admin\ArticleController::class, 'batchAction'])->name('articles.batch');
     Route::resource('articles', \App\Http\Controllers\Admin\ArticleController::class);
     Route::post('articles/upload-image', [\App\Http\Controllers\Admin\ArticleController::class, 'uploadImage'])->name('articles.upload-image');
@@ -90,6 +93,29 @@ Route::middleware(['admin.auth'])->group(function () {
     Route::post('backups', [\App\Http\Controllers\Admin\BackupController::class, 'store'])->name('backups.store');
     Route::delete('backups/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('backups.destroy');
     Route::get('backups/{filename}/download', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('backups.download');
+
+    // 违禁词违规记录（无 destroy）
+    Route::get('forbidden-word-violations/export', [\App\Http\Controllers\Admin\ForbiddenWordViolationController::class, 'export'])
+        ->name('forbidden-word-violations.export');
+    Route::patch('forbidden-word-violations/{forbidden_word_violation}/resolve', [\App\Http\Controllers\Admin\ForbiddenWordViolationController::class, 'resolve'])
+        ->name('forbidden-word-violations.resolve');
+    Route::resource('forbidden-word-violations', \App\Http\Controllers\Admin\ForbiddenWordViolationController::class)
+        ->only(['index', 'show'])
+        ->parameters(['forbidden-word-violations' => 'forbidden_word_violation']);
+
+    // 违禁词库（静态路由须先于 resource，避免被 {forbidden_word} 捕获）
+    Route::post('forbidden-words/scan', [\App\Http\Controllers\Admin\ForbiddenWordScanController::class, 'store'])
+        ->name('forbidden-words.scan');
+    Route::get('forbidden-words/import', [\App\Http\Controllers\Admin\ForbiddenWordController::class, 'importForm'])
+        ->name('forbidden-words.import');
+    Route::post('forbidden-words/import', [\App\Http\Controllers\Admin\ForbiddenWordController::class, 'import'])
+        ->name('forbidden-words.import.store');
+    Route::get('forbidden-words/export', [\App\Http\Controllers\Admin\ForbiddenWordController::class, 'export'])
+        ->name('forbidden-words.export');
+    Route::post('forbidden-words/batch', [\App\Http\Controllers\Admin\ForbiddenWordController::class, 'batch'])
+        ->name('forbidden-words.batch');
+    Route::resource('forbidden-words', \App\Http\Controllers\Admin\ForbiddenWordController::class)
+        ->except(['show']);
 
     // 左侧菜单管理（resource 放末尾，新建/编辑时下拉可列出全部 admin.* 路由名）
     Route::post('menu-items/{admin_menu_item}/move-up', [\App\Http\Controllers\Admin\AdminMenuItemController::class, 'moveUp'])->name('menu-items.move-up');

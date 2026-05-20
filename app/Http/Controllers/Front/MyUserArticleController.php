@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Exceptions\ForbiddenContentException;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\UserArticle;
@@ -55,6 +56,8 @@ class MyUserArticleController extends Controller
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withInput()->withErrors($e->errors());
+        } catch (ForbiddenContentException $e) {
+            return $this->forbiddenContentRedirect($e);
         }
 
         if ($request->input('action') === 'submit') {
@@ -62,6 +65,8 @@ class MyUserArticleController extends Controller
                 $this->userArticleService->submitForReview($article, auth()->user());
             } catch (\Illuminate\Validation\ValidationException $e) {
                 return redirect()->route('front.my.articles.edit', $article)->withInput()->withErrors($e->errors());
+            } catch (ForbiddenContentException $e) {
+                return $this->forbiddenContentRedirect($e);
             }
 
             return $this->redirectToProfileArticles(UserArticle::STATUS_PENDING_REVIEW, '已提交审核');
@@ -113,6 +118,8 @@ class MyUserArticleController extends Controller
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withInput()->withErrors($e->errors());
+        } catch (ForbiddenContentException $e) {
+            return $this->forbiddenContentRedirect($e);
         }
 
         if ($request->input('action') === 'submit') {
@@ -120,6 +127,8 @@ class MyUserArticleController extends Controller
                 $this->userArticleService->submitForReview($userArticle->fresh(), auth()->user());
             } catch (\Illuminate\Validation\ValidationException $e) {
                 return back()->withInput()->withErrors($e->errors());
+            } catch (ForbiddenContentException $e) {
+                return $this->forbiddenContentRedirect($e);
             }
 
             return $this->redirectToProfileArticles(UserArticle::STATUS_PENDING_REVIEW, '已提交审核');
@@ -154,6 +163,8 @@ class MyUserArticleController extends Controller
             $this->userArticleService->submitForReview($userArticle, auth()->user());
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors());
+        } catch (ForbiddenContentException $e) {
+            return $this->forbiddenContentRedirect($e);
         }
 
         return $this->redirectToProfileArticles(UserArticle::STATUS_PENDING_REVIEW, '已提交审核');
@@ -250,6 +261,18 @@ class MyUserArticleController extends Controller
         }
 
         return array_values(array_filter(array_map('trim', preg_split('/[,，]/u', $csv) ?: [])));
+    }
+
+    /**
+     * 违禁词拦截：回退表单并附带扫描结果供前端展示。
+     */
+    protected function forbiddenContentRedirect(ForbiddenContentException $e): RedirectResponse
+    {
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors(['forbidden_content' => $e->result->messages])
+            ->with('forbidden_scan', $e->result->toArray());
     }
 
     /**

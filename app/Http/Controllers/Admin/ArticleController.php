@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\ForbiddenContentException;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\AdminOperationLog;
 use App\Models\Article;
 use App\Models\Category;
+use App\Services\ForbiddenWord\ForbiddenContentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +17,11 @@ use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
+    public function __construct(
+        private readonly ForbiddenContentService $forbiddenContentService,
+    ) {
+    }
+
     /**
      * 上傳封面圖並驗證寫入成功（解決生產環境 store 回傳路徑但檔案未實際寫入的問題）
      */
@@ -93,6 +100,12 @@ class ArticleController extends Controller
             return redirect()->back()->withInput()->withErrors(['cover_image' => $e->getMessage()]);
         }
 
+        try {
+            $data = $this->mergeForbiddenCheckedArticleFields($request, $data);
+        } catch (ForbiddenContentException $e) {
+            return $this->forbiddenContentRedirect($e);
+        }
+
         $article = Article::create($data);
 
         AdminOperationLog::log('创建文章: ' . $article->title, '文章管理');
@@ -142,6 +155,12 @@ class ArticleController extends Controller
             Log::error('封面圖上傳失敗: ' . $e->getMessage(), ['exception' => $e]);
 
             return redirect()->back()->withInput()->withErrors(['cover_image' => $e->getMessage()]);
+        }
+
+        try {
+            $data = $this->mergeForbiddenCheckedArticleFields($request, $data, $article);
+        } catch (ForbiddenContentException $e) {
+            return $this->forbiddenContentRedirect($e);
         }
 
         $article->update($data);
@@ -273,5 +292,51 @@ class ArticleController extends Controller
                 'message' => '上传失败：' . (config('app.debug') ? $e->getMessage() : '服务器处理异常，请重试'),
             ], 500);
         }
+    }
+
+    /**
+     * 组装文章待检字段并执行违禁词强校验（含自动替换合并）。
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function mergeForbiddenCheckedArticleFields(Request $request, array $data, ?Article $article = null): array
+    {
+        $fields = [
+            'title' => (string) ($data['title'] ?? $request->input('title', '')),
+            'body' => (string) ($data['content'] ?? $request->input('content', '')),
+            'seo_title' => (string) $request->input('seo_title', ''),
+            'seo_keywords' => (string) $request->input('seo_keywords', ''),
+            'seo_description' => (string) $request->input('seo_description', ''),
+        ];
+
+        $result = $this->forbiddenContentService->assertOrReplace(
+            $fields,
+            'article',
+            $fields['title'],
+            'article',
+            $article?->id,
+        );
+
+        $merged = $result['fields'];
+        $data['title'] = $merged['title'] ?? $data['title'] ?? '';
+        $data['content'] = $merged['body'] ?? $data['content'] ?? '';
+        $data['seo_title'] = $merged['seo_title'] ?? $request->input('seo_title');
+        $data['seo_keywords'] = $merged['seo_keywords'] ?? $request->input('seo_keywords');
+        $data['seo_description'] = $merged['seo_description'] ?? $request->input('seo_description');
+
+        return $data;
+    }
+
+    /**
+     * 违禁词拦截：回退表单并附带扫描结果供前端展示。
+     */
+    private function forbiddenContentRedirect(ForbiddenContentException $e): RedirectResponse
+    {
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors(['forbidden_content' => $e->result->messages])
+            ->with('forbidden_scan', $e->result->toArray());
     }
 }
