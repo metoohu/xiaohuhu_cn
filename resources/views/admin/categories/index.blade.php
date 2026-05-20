@@ -29,6 +29,8 @@
         @csrf
         <button type="submit" name="action" value="enable" class="admin-toolbar-btn admin-toolbar-btn--green">批量启用</button>
         <button type="submit" name="action" value="disable" class="admin-toolbar-btn admin-toolbar-btn--slate">批量禁用</button>
+        <button type="submit" name="action" value="allow_submit" class="admin-toolbar-btn admin-toolbar-btn--green">批量允许投稿</button>
+        <button type="submit" name="action" value="disallow_submit" class="admin-toolbar-btn admin-toolbar-btn--slate">批量取消允许投稿</button>
         <button type="submit" name="action" value="modify" class="admin-toolbar-btn admin-toolbar-btn--blue">批量修改</button>
         <select name="parent_id" class="rounded border-slate-300 text-sm py-1 px-2">
             <option value="">父级不变</option>
@@ -53,6 +55,7 @@
                 <th class="text-left py-3 px-3 font-semibold">父级</th>
                 <th class="text-left py-3 px-3 font-semibold">排序</th>
                 <th class="text-left py-3 px-3 font-semibold">状态</th>
+                <th class="text-left py-3 px-3 font-semibold">允许投稿</th>
                 <th class="text-left py-3 px-3 font-semibold">文章数</th>
                 <th class="text-left py-3 px-3 font-semibold">操作</th>
             </tr>
@@ -71,6 +74,13 @@
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">启用</span>
                     @else
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">禁用</span>
+                    @endif
+                </td>
+                <td class="py-3 px-3">
+                    @if($c->user_can_submit)
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-sky-50 text-sky-800 border border-sky-200">是</span>
+                    @else
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">否</span>
                     @endif
                 </td>
                 <td class="py-3 px-3 tabular-nums">{{ $c->articles_count ?? 0 }}</td>

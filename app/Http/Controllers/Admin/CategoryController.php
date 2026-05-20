@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\UserArticle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -153,12 +154,33 @@ class CategoryController extends Controller
     public function batchAction(Request $request): RedirectResponse
     {
         $request->validate([
-            'action' => 'required|in:delete,modify,enable,disable',
+            'action' => 'required|in:delete,modify,enable,disable,allow_submit,disallow_submit',
             'ids' => 'required|array',
             'ids.*' => 'exists:categories,id',
         ]);
 
-        $categories = Category::whereIn('id', $request->ids)->get();
+        $ids = $request->input('ids', []);
+        $categories = Category::whereIn('id', $ids)->get();
+
+        if ($request->action === 'allow_submit') {
+            $count = Category::whereIn('id', $ids)->update(['user_can_submit' => true]);
+
+            return back()->with('success', "已批量允许用户投稿：共 {$count} 个分类（未自动启用分类，禁用分类仍不会出现在前台投稿下拉）");
+        }
+
+        if ($request->action === 'disallow_submit') {
+            $count = Category::whereIn('id', $ids)->update(['user_can_submit' => false]);
+            $withUserArticles = (int) UserArticle::query()
+                ->whereIn('category_id', $ids)
+                ->distinct()
+                ->count('category_id');
+            $msg = "已批量取消用户投稿：共 {$count} 个分类";
+            if ($withUserArticles > 0) {
+                $msg .= "；其中 {$withUserArticles} 个分类下仍有用户稿件（仅影响新建投稿可选分类）";
+            }
+
+            return back()->with('success', $msg);
+        }
 
         if ($request->action === 'enable') {
             foreach ($categories as $category) {
