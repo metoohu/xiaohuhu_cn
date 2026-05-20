@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Exceptions\ForbiddenContentException;
 use App\Http\Controllers\Controller;
 use App\Models\UserArticle;
+use App\Services\ForbiddenWord\ForbiddenContentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +13,11 @@ use Illuminate\View\View;
 
 class UserProfileController extends Controller
 {
+    public function __construct(
+        private readonly ForbiddenContentService $forbiddenContentService,
+    ) {
+    }
+
     public function edit(Request $request): View
     {
         $user = auth()->user();
@@ -72,6 +79,28 @@ class UserProfileController extends Controller
                 Storage::disk('public')->delete($user->avatar);
             }
             $data['avatar'] = $request->file('avatar')->store($dir, 'public');
+        }
+
+        $profileFields = array_intersect_key($data, array_flip(['signature', 'mood_text', 'interests', 'occupation']));
+        if ($profileFields !== []) {
+            try {
+                $checked = $this->forbiddenContentService->assertOrReplace(
+                    $profileFields,
+                    'user_profile',
+                    null,
+                    'user_profile',
+                    (int) $user->id,
+                );
+                foreach ($checked['fields'] as $key => $value) {
+                    $data[$key] = $value;
+                }
+            } catch (ForbiddenContentException $e) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->withErrors(['forbidden_content' => $e->result->messages])
+                    ->with('forbidden_scan', $e->result->toArray());
+            }
         }
 
         $user->update($data);
