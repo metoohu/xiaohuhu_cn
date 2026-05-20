@@ -2,11 +2,13 @@
 
 namespace App\Services\UserArticle;
 
+use App\Exceptions\ForbiddenContentException;
 use App\Models\Category;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\UserArticle;
 use App\Services\EmotionalArticle\EmotionalArticleHtmlSanitizer;
+use App\Services\ForbiddenWord\ForbiddenContentService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,7 +20,8 @@ use Illuminate\Validation\ValidationException;
 class UserArticleService
 {
     public function __construct(
-        protected EmotionalArticleHtmlSanitizer $htmlSanitizer
+        protected EmotionalArticleHtmlSanitizer $htmlSanitizer,
+        protected ForbiddenContentService $forbiddenContentService,
     ) {}
 
     public function cfg(string $key): int
@@ -177,6 +180,7 @@ class UserArticleService
         $title = trim((string) $data['title']);
         $body = $this->sanitizeBody((string) $data['content']);
         $this->validateTitleAndContent($title, $body);
+        [$title, $body] = $this->applyForbiddenContentCheck($title, $body, $data['tags'] ?? [], null);
 
         return DB::transaction(function () use ($user, $categoryId, $title, $body, $data) {
             $article = UserArticle::create([
@@ -210,6 +214,8 @@ class UserArticleService
         $title = isset($data['title']) ? trim((string) $data['title']) : $article->title;
         $body = isset($data['content']) ? $this->sanitizeBody((string) $data['content']) : (string) $article->content_pending;
         $this->validateTitleAndContent($title, $body);
+        $tags = array_key_exists('tags', $data) ? ($data['tags'] ?? []) : $article->tags->pluck('name')->all();
+        [$title, $body] = $this->applyForbiddenContentCheck($title, $body, $tags, (int) $article->id);
 
         return DB::transaction(function () use ($article, $categoryId, $title, $body, $data) {
             $article->fill([
@@ -241,6 +247,8 @@ class UserArticleService
         $title = isset($data['title']) ? trim((string) $data['title']) : $article->title;
         $body = $this->sanitizeBody((string) $data['content']);
         $this->validateTitleAndContent($title, $body);
+        $tags = array_key_exists('tags', $data) ? ($data['tags'] ?? []) : $article->tags->pluck('name')->all();
+        [$title, $body] = $this->applyForbiddenContentCheck($title, $body, $tags, (int) $article->id);
 
         return DB::transaction(function () use ($article, $title, $body, $data) {
             $article->fill([
@@ -269,7 +277,10 @@ class UserArticleService
         }
 
         $pending = (string) $article->content_pending;
-        $this->validateTitleAndContent($article->title, $pending);
+        $title = (string) $article->title;
+        $this->validateTitleAndContent($title, $pending);
+        $tags = $article->tags->pluck('name')->all();
+        [$title, $pending] = $this->applyForbiddenContentCheck($title, $pending, $tags, (int) $article->id);
 
         if (in_array($article->status, [UserArticle::STATUS_DRAFT, UserArticle::STATUS_REJECTED], true)) {
             $this->assertUnderDailySubmitLimit($user);
@@ -282,7 +293,10 @@ class UserArticleService
             $this->assertUnderDailySubmitLimit($user);
         }
 
-        return DB::transaction(function () use ($article) {
+        return DB::transaction(function () use ($article, $title, $pending) {
+            $article->title = $title;
+            $article->content_pending = $pending;
+            $article->excerpt = $this->buildExcerpt($pending);
             $article->status = UserArticle::STATUS_PENDING_REVIEW;
             $article->submitted_at = now();
             $article->rejection_reason = null;
@@ -290,6 +304,40 @@ class UserArticleService
 
             return $article->fresh(['tags', 'category']);
         });
+    }
+
+    /**
+     * 社区稿写入口违禁词校验：拦截抛 ForbiddenContentException，调性词自动替换后返回新标题与正文。
+     *
+     * @param  list<string>  $tagNames
+     * @return array{0: string, 1: string}
+     *
+     * @throws ForbiddenContentException
+     */
+    protected function applyForbiddenContentCheck(string $title, string $body, array $tagNames, ?int $userArticleId): array
+    {
+        $tagCsv = implode(',', array_filter(array_map('trim', $tagNames)));
+        $fields = [
+            'title' => $title,
+            'body' => $body,
+            'excerpt' => $this->buildExcerpt($body),
+            'tags' => $tagCsv,
+        ];
+
+        $result = $this->forbiddenContentService->assertOrReplace(
+            $fields,
+            'user_article',
+            $title,
+            'user_article',
+            $userArticleId,
+        );
+
+        $merged = $result['fields'];
+
+        return [
+            $merged['title'] ?? $title,
+            $merged['body'] ?? $body,
+        ];
     }
 
     public function withdraw(UserArticle $article, User $user): UserArticle

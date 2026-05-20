@@ -11,6 +11,9 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
     <h1 class="text-2xl font-serif font-semibold text-primary-800 mb-6">新建投稿</h1>
 
+    <x-forbidden-content-alert />
+    @include('partials.forbidden-content-live-scan-panel')
+
     @if($categories->isEmpty())
     <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900 mb-6">
         暂无可选分类：请管理员在后台为分类勾选「允许用户投稿」并启用分类。
@@ -39,10 +42,14 @@
         <div>
             <label class="block text-sm font-medium text-dark-800/80 mb-1">标题 <span class="text-red-500">*</span></label>
             <input type="text" name="title" value="{{ old('title') }}" required maxlength="120" class="w-full rounded-xl border-haze-200">
+            <div id="forbidden-title-preview" class="hidden mt-1 text-sm leading-relaxed"></div>
             @error('title')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
         <div>
-            <label class="block text-sm font-medium text-dark-800/80 mb-1">正文 <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-dark-800/80 mb-1">
+                正文 <span class="text-red-500">*</span>
+                <span id="forbidden-body-badge" class="hidden ml-2 text-xs font-normal text-red-600"></span>
+            </label>
             <p class="text-xs text-dark-800/50 mb-1">与后台文章相同的可视化编辑器；字数按纯文本计算。</p>
             {{-- 勿加 required：TinyMCE 会隐藏 textarea，浏览器会认为正文为空而静默拦截提交 --}}
             <textarea id="user-article-content" name="content" rows="14" class="w-full rounded-xl border-haze-200 font-sans text-sm">{{ old('content') }}</textarea>
@@ -52,6 +59,7 @@
         <div>
             <label class="block text-sm font-medium text-dark-800/80 mb-1">标签（最多 3 个，逗号分隔）</label>
             <input type="text" name="tags_csv" value="{{ old('tags_csv') }}" class="w-full rounded-xl border-haze-200" placeholder="例如：生活,感悟">
+            <div id="forbidden-tags-preview" class="hidden mt-1 text-sm leading-relaxed"></div>
             @error('tags')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
         <div class="flex flex-wrap gap-3 pt-2">
@@ -65,4 +73,12 @@
 
 @push('scripts')
 @include('front.my.articles.partials.tinymce', ['formId' => 'user-article-form', 'textareaId' => 'user-article-content'])
+@include('partials.forbidden-content-live-scan-init', [
+    'scanUrl' => route('front.forbidden-content.scan'),
+    'context' => 'user_article',
+    'titleSelector' => 'input[name="title"]',
+    'bodySelector' => '#user-article-content',
+    'bodyTinymce' => true,
+    'tagsSelector' => 'input[name="tags_csv"]',
+])
 @endpush

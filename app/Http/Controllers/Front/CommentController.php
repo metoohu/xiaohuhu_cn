@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Exceptions\ForbiddenContentException;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
+use App\Services\ForbiddenWord\ForbiddenContentService;
 use App\Support\CommentContentFormatter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    public function __construct(
+        private readonly ForbiddenContentService $forbiddenContentService,
+    ) {
+    }
+
     public function store(Request $request): JsonResponse
     {
         if (! auth()->check()) {
@@ -54,6 +61,24 @@ class CommentController extends Controller
             return response()->json(['message' => '评论已关闭'], 403);
         }
 
+        $content = (string) $request->input('content', '');
+        try {
+            $checked = $this->forbiddenContentService->assertOrReplace(
+                ['content' => $content],
+                'comment',
+                null,
+                'comment',
+                null,
+            );
+            $content = $checked['fields']['content'] ?? $content;
+        } catch (ForbiddenContentException $e) {
+            return response()->json([
+                'message' => implode(' ', $e->result->messages) ?: '内容含违禁词',
+                'hits' => array_map(fn ($hit) => $hit->toArray(), $e->result->hits),
+                'forbidden' => true,
+            ], 422);
+        }
+
         if ($request->filled('article_id')) {
             $article = \App\Models\Article::findOrFail((int) $request->article_id);
             if ($article->status !== 'published') {
@@ -66,7 +91,7 @@ class CommentController extends Controller
                 'user_id' => auth()->id(),
                 'author_name' => auth()->user()->name,
                 'author_email' => auth()->user()->email,
-                'content' => $request->content,
+                'content' => $content,
                 'status' => 'pending',
             ]);
         } else {
@@ -81,7 +106,7 @@ class CommentController extends Controller
                 'user_id' => auth()->id(),
                 'author_name' => auth()->user()->name,
                 'author_email' => auth()->user()->email,
-                'content' => $request->content,
+                'content' => $content,
                 'status' => 'pending',
             ]);
         }

@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\ForbiddenContentException;
 use App\Models\Article;
 use App\Models\ArticleGenerationRun;
-use App\Services\EmotionalArticle\DoubaoEmotionalArticleClient;
+use App\Services\EmotionalArticle\Contracts\EmotionalArticleGenerator;
+use App\Services\ForbiddenWord\ForbiddenContentService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,8 +39,10 @@ class GenerateEmotionalArticleJob implements ShouldBeUnique, ShouldQueue
         return 'emotional-article-run-'.$this->articleGenerationRunId;
     }
 
-    public function handle(DoubaoEmotionalArticleClient $client): void
-    {
+    public function handle(
+        EmotionalArticleGenerator $client,
+        ForbiddenContentService $forbiddenContentService,
+    ): void {
         $run = ArticleGenerationRun::query()->find($this->articleGenerationRunId);
         if (! $run) {
             return;
@@ -77,15 +81,39 @@ class GenerateEmotionalArticleJob implements ShouldBeUnique, ShouldQueue
 
         try {
             $payload = $client->generate($category);
+
+            $fields = [
+                'title' => (string) ($payload['title'] ?? ''),
+                'body' => (string) ($payload['content'] ?? ''),
+                'seo_title' => (string) ($payload['seo_title'] ?? ''),
+                'seo_keywords' => (string) ($payload['seo_keywords'] ?? ''),
+                'seo_description' => (string) ($payload['seo_description'] ?? ''),
+            ];
+
+            try {
+                $checked = $forbiddenContentService->assertOrReplace(
+                    $fields,
+                    'article',
+                    $fields['title'],
+                    'article',
+                    null,
+                );
+                $merged = $checked['fields'];
+            } catch (ForbiddenContentException $e) {
+                $this->markFailed($run, implode(' ', $e->result->messages));
+
+                return;
+            }
+
             $article = Article::query()->create([
-                'title' => $payload['title'],
-                'content' => $payload['content'],
+                'title' => $merged['title'] ?? $payload['title'],
+                'content' => $merged['body'] ?? $payload['content'],
                 'category_id' => $category->id,
                 'admin_user_id' => null,
                 'status' => Article::STATUS_REVIEW,
-                'seo_title' => $payload['seo_title'],
-                'seo_keywords' => $payload['seo_keywords'],
-                'seo_description' => $payload['seo_description'],
+                'seo_title' => $merged['seo_title'] ?? $payload['seo_title'],
+                'seo_keywords' => $merged['seo_keywords'] ?? $payload['seo_keywords'],
+                'seo_description' => $merged['seo_description'] ?? $payload['seo_description'],
                 'click_num' => 0,
                 'is_recommend' => false,
                 'sort' => 0,

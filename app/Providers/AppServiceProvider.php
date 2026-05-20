@@ -4,6 +4,12 @@ namespace App\Providers;
 
 use App\Models\Admin\AdminMenuItem;
 use App\Models\Category;
+use App\Models\ForbiddenWord;
+use App\Models\ForbiddenWordAllowlist;
+use App\Observers\ForbiddenWordAllowlistObserver;
+use App\Observers\ForbiddenWordObserver;
+use App\Services\EmotionalArticle\Contracts\EmotionalArticleGenerator;
+use App\Services\EmotionalArticle\DoubaoEmotionalArticleClient;
 use App\Support\ExtensionMimeTypeGuesser;
 use Illuminate\Filesystem\LocalFilesystemAdapter;
 use Illuminate\Support\Arr;
@@ -27,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(EmotionalArticleGenerator::class, DoubaoEmotionalArticleClient::class);
     }
 
     /**
@@ -35,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 违禁词词库/豁免变更时失效词典缓存
+        ForbiddenWord::observe(ForbiddenWordObserver::class);
+        ForbiddenWordAllowlist::observe(ForbiddenWordAllowlistObserver::class);
+
         Paginator::useTailwind();
 
         // 當 fileinfo 擴展不可用時，註冊基於副檔名的 MIME 猜測器，避免上傳封面圖等報錯
